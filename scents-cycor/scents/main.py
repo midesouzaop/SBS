@@ -184,7 +184,7 @@ def generate_video(current_user):
             # Continua o fluxo mesmo se o Redis falhar
 
         # Caminho absoluto para o áudio
-        audio_file = os.path.abspath('scents-cycor/scents/uploads/audio_A5CBR.mp3')
+        audio_file = os.path.abspath('SBS/scents-cycor/scents/uploads/audio_A5CBR.mp3')
 
         last_image = GeneratedFile.query.filter_by(user_id=user_id).order_by(GeneratedFile.timestamp.desc()).first()
 
