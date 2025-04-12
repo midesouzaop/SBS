@@ -1,0 +1,16 @@
+
+[tool.poetry]
+name = "python-template"
+version = "0.1.0"
+description = ""
+authors = ["Your Name <you@example.com>"]
+
+[tool.poetry.dependencies]
+python = ">=3.11"
+moviepy = ">=2.1.2"
+Flask = "2.2.3"
+Flask-SQLAlchemy = "3.0.2"
+Flask-Limiter = "2.0.2"
+uvicorn = "0.18.3"
+pyjwt = "*"
+werkzeug = "2.2.3"

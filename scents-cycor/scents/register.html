@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            max-width: 400px;
+            width: 100%;
+        }
+
+        h2 {
+            text-align: center;
+        }
+
+        .input-container {
+            margin-top: 10px;
+        }
+
+        input {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .erro {
+            color: red;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+
+        .botao {
+            width: 100%;
+            background-color: blue;
+            color: white;
+            padding: 10px;
+            margin-top: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .botao:hover {
+            background-color: darkblue;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Cadastro</h2>
+        <div class="input-container">
+            <label for="nome">Nome:</label>
+            <input type="text" id="nome" placeholder="Digite seu nome">
+        </div>
+        <div class="input-container">
+            <label for="sobrenome">Sobrenome:</label>
+            <input type="text" id="sobrenome" placeholder="Digite seu sobrenome">
+        </div>
+        <div class="input-container">
+            <label for="email">Email:</label>
+            <input type="email" id="email" placeholder="Digite seu email">
+        </div>
+        <div class="input-container">
+            <label for="whatsapp">WhatsApp:</label>
+            <input type="text" id="whatsapp" placeholder="Digite seu WhatsApp">
+        </div>
+        <div class="input-container">
+            <label for="cnpj">CNPJ:</label>
+            <input type="text" id="cnpj" placeholder="Digite seu CNPJ">
+        </div>
+        <div class="input-container">
+            <label for="username">Usuário:</label>
+            <input type="text" id="username" placeholder="Digite seu nome de usuário">
+        </div>
+        <div class="input-container">
+            <label for="password">Senha:</label>
+            <input type="password" id="password" placeholder="Digite sua senha">
+        </div>
+        <p id="erro" class="erro"></p>
+        <button class="botao" onclick="handleCadastro()">Enviar</button>
+    </div>
+
+    <script>
+        function validarCNPJ(cnpj) {
+            return cnpj.replace(/\D/g, "").length === 14;
+        }
+
+        function handleCadastro() {
+            const nome = document.getElementById("nome").value.trim();
+            const sobrenome = document.getElementById("sobrenome").value.trim();
+            const email = document.getElementById("email").value.trim();
+            const whatsapp = document.getElementById("whatsapp").value.trim();
+            const cnpj = document.getElementById("cnpj").value.trim();
+            const erro = document.getElementById("erro");
+            erro.textContent = "";
+
+            if (!nome || !sobrenome || !email || !whatsapp || !cnpj) {
+                erro.textContent = "Por favor, preencha todos os campos.";
+                return;
+            }
+
+            if (!validarCNPJ(cnpj)) {
+                erro.textContent = "CNPJ inválido. Verifique e tente novamente.";
+                return;
+            }
+
+            const username = document.getElementById("username").value.trim();
+            const password = document.getElementById("password").value.trim();
+
+            if (!username || !password) {
+                erro.textContent = "Usuário e senha são obrigatórios.";
+                return;
+            }
+
+            const dados = {
+                nome,
+                sobrenome,
+                email,
+                whatsapp,
+                cpf_cnpj: cnpj,
+                username,
+                password
+            };
+
+            fetch("/register", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(dados)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("Erro ao enviar os dados.");
+                }
+                return response.json();
+            })
+            .then(data => {
+                alert("Cadastro realizado com sucesso! Redirecionando para o login...");
+                window.location.href = "/login";
+            })
+            .catch(error => {
+                erro.textContent = "Falha ao enviar os dados. Tente novamente mais tarde.";
+                console.error("Erro:", error);
+            });
+        }
+    </script>
+</body>
+</html>

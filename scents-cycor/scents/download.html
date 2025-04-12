@@ -1,0 +1,53 @@
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Downloads</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Seus Downloads</h1>
+        <div id="file-list"></div>
+    </div>
+
+    <script>
+        const token = localStorage.getItem('token');
+        if (!token) {
+            window.location.href = '/login';
+        }
+
+        async function loadFiles() {
+            const response = await fetch('/list-uploads', {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            const files = await response.json();
+
+            const fileList = document.getElementById('file-list');
+            files.forEach(file => {
+                const div = document.createElement('div');
+                div.className = 'file-item';
+                div.style.margin = '10px 0';
+                div.style.padding = '10px';
+                div.style.border = '1px solid #ddd';
+                div.style.borderRadius = '5px';
+
+                const link = document.createElement('a');
+                link.href = `/download/${file.filename}`;
+                link.download = file.filename;
+                link.className = 'main-button';
+                link.textContent = `Baixar ${file.filename}`;
+                
+                div.appendChild(link);
+                fileList.appendChild(div);
+            });
+        }
+
+        loadFiles();
+    </script>
+</body>
+</html>
