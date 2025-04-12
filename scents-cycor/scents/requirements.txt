@@ -1,9 +1,12 @@
-
-Flask==2.2.3
-Flask-SQLAlchemy==3.0.2
-Flask-Limiter==2.0.2
-uvicorn==0.18.3
 pyjwt
 werkzeug==2.2.3
 ffmpeg
 gunicorn
+Flask==2.2.3
+Flask-SQLAlchemy==3.0.2
+Flask-Limiter==2.0.2
+uvicorn==0.18.3
+Werkzeug==2.2.3
+opencv-python==4.9.0.80
+numpy==1.26.4
+redis==5.0.1
