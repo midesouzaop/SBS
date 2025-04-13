@@ -22,7 +22,7 @@
             margin-bottom: 20px;
         }
 
-        #generate-video-btn {
+        #generate-video-btn, #save-token-btn {
             padding: 12px 24px;
             background-color: #007bff;
             border: none;
@@ -34,7 +34,7 @@
             max-width: 300px;
         }
 
-        #generate-video-btn:hover {
+        #generate-video-btn:hover, #save-token-btn:hover {
             background-color: #0056b3;
         }
 
@@ -60,12 +60,23 @@
             color: #00ffcc;
         }
 
+        #token-input {
+            width: 100%;
+            max-width: 400px;
+            padding: 10px;
+            margin-top: 5px;
+            background-color: #333;
+            border: 1px solid #555;
+            border-radius: 5px;
+            color: #f0f0f0;
+        }
+
         @media (min-width: 600px) {
             body {
                 padding: 40px;
             }
 
-            #generate-video-btn {
+            #generate-video-btn, #save-token-btn {
                 font-size: 1.1rem;
             }
 
@@ -77,10 +88,18 @@
 </head>
 <body>
     <h1>Gerador de Vídeos</h1>
+
     <button id="generate-video-btn">Gerar Vídeo</button>
     <p id="status-message"></p>
+
     <div id="fallback-link">
         <p>Se o download não começar automaticamente, <a id="manual-download" href="#" download>Clique aqui para baixar manualmente</a>.</p>
+    </div>
+
+    <div style="margin-top: 30px;">
+        <label for="token-input">Token de Acesso:</label><br>
+        <input type="text" id="token-input" placeholder="Insira seu token aqui">
+        <button id="save-token-btn">Salvar Token</button>
     </div>
 
     <script>
@@ -145,8 +164,23 @@
                 fallbackDiv.style.display = 'none';
             }
         });
+
+        document.getElementById('save-token-btn').addEventListener('click', () => {
+            const tokenInput = document.getElementById('token-input').value.trim();
+            if (tokenInput) {
+                localStorage.setItem('token', tokenInput);
+                alert('Token salvo com sucesso!');
+            } else {
+                alert('Por favor, insira um token válido.');
+            }
+        });
+
+        window.addEventListener('DOMContentLoaded', () => {
+            const savedToken = localStorage.getItem('token');
+            if (savedToken) {
+                document.getElementById('token-input').value = savedToken;
+            }
+        });
     </script>
 </body>
 </html>
-
-      
