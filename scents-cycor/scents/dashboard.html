@@ -130,6 +130,9 @@
 
                 const videoUrl = result.video_url;
 
+                // Log para verificar o valor do videoUrl
+                console.log("URL do vídeo: ", videoUrl);
+
                 // Verificar se videoUrl existe antes de chamar .toLowerCase()
                 if (!videoUrl || (!videoUrl.toLowerCase().endsWith('.mp4') && !videoUrl.toLowerCase().endsWith('.mp3'))) {
                     throw new Error('Formato inválido. Apenas .mp4 ou .mp3 são permitidos.');
