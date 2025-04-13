@@ -210,16 +210,23 @@ def generate_video(current_user):
         else:
             print(f"[INFO] Arquivo de imagem localizado com sucesso: {image_path}")
 
-        # Nome do vídeo gerado
-        video_filename = 'output.mp4'
-        video_path = os.path.join('scents-cycor', 'scents', 'uploads', video_filename)
+        # Caminho completo de saída
+        video_filename = f"video_user_{user_id}_{uuid.uuid4().hex}.mp4"
+        video_path = os.path.join(app.config['UPLOAD_FOLDER'], video_filename)
 
-        # (Opcional) Lógica para gerar o vídeo aqui...
+        # Gerar vídeo com imagem + áudio
+        sucesso = generate_video_with_audio(image_path, audio_file, video_path)
 
-        if not os.path.exists(video_path):
-            return jsonify({'message': 'Vídeo não encontrado após tentativa de geração.'}), 500
+        if not sucesso or not os.path.exists(video_path):
+            return jsonify({'message': 'Falha ao gerar vídeo'}), 500
 
-        video_url = f'/uploads/{video_filename}'
+        # Registrar o novo vídeo gerado
+        new_file = GeneratedFile(filename=video_filename, user_id=user_id)
+        current_user.file_count += 1
+        db.session.add(new_file)
+        db.session.commit()
+
+        video_url = f'/video/{video_filename}'
 
         return jsonify({
             'message': 'Vídeo gerado com sucesso!',
@@ -229,7 +236,6 @@ def generate_video(current_user):
     except Exception as e:
         print(f"[ERRO] {e}")
         return jsonify({'message': 'Erro ao gerar vídeo'}), 500
-
         
         
         
