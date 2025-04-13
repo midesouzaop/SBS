@@ -130,10 +130,8 @@
 
                 const videoUrl = result.video_url;
 
-                // Verifique se videoUrl está definido e não é vazio
-                if (!videoUrl || typeof videoUrl !== 'string') {
-                    throw new Error('URL do vídeo não foi retornada ou é inválida.');
-                }
+                // Mostrar a URL do vídeo na tela
+                statusMessage.innerHTML = `Vídeo gerado com sucesso!<br>URL: <a href="${videoUrl}" target="_blank">${videoUrl}</a>`;
 
                 // Prepara fallback
                 manualLink.href = videoUrl;
@@ -148,9 +146,9 @@
                 a.click();
                 document.body.removeChild(a);
 
-                // Contagem regressiva de 5 segundos
+                // Contagem regressiva para redirecionar
                 let seconds = 5;
-                statusMessage.innerHTML = `Vídeo gerado e download iniciado com sucesso!<br>Redirecionando para o login em <span id="countdown">${seconds}</span> segundos...`;
+                statusMessage.innerHTML += `<br>Redirecionando para o login em <span id="countdown">${seconds}</span> segundos...`;
 
                 const interval = setInterval(() => {
                     seconds--;
