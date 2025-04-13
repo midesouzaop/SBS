@@ -130,8 +130,10 @@
 
                 const videoUrl = result.video_url;
 
-                // Log para verificar o valor do videoUrl
-                console.log("URL do vídeo: ", videoUrl);
+                // Verifique se videoUrl está definido e não é vazio
+                if (!videoUrl || typeof videoUrl !== 'string') {
+                    throw new Error('URL do vídeo não foi retornada ou é inválida.');
+                }
 
                 // Prepara fallback
                 manualLink.href = videoUrl;
