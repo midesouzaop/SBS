@@ -22,7 +22,7 @@
             margin-bottom: 20px;
         }
 
-        #generate-video-btn {
+        #generate-video-btn, #save-token-btn {
             padding: 12px 24px;
             background-color: #007bff;
             border: none;
@@ -32,9 +32,10 @@
             cursor: pointer;
             width: 100%;
             max-width: 300px;
+            margin-top: 10px;
         }
 
-        #generate-video-btn:hover {
+        #generate-video-btn:hover, #save-token-btn:hover {
             background-color: #0056b3;
         }
 
@@ -60,12 +61,23 @@
             color: #00ffcc;
         }
 
+        #token-input {
+            width: 100%;
+            max-width: 400px;
+            padding: 10px;
+            margin-top: 5px;
+            background-color: #333;
+            border: 1px solid #555;
+            border-radius: 5px;
+            color: #f0f0f0;
+        }
+
         @media (min-width: 600px) {
             body {
                 padding: 40px;
             }
 
-            #generate-video-btn {
+            #generate-video-btn, #save-token-btn {
                 font-size: 1.1rem;
             }
 
@@ -77,8 +89,16 @@
 </head>
 <body>
     <h1>Gerador de Vídeos</h1>
+
+    <div style="margin-bottom: 30px;">
+        <label for="token-input">Token de Acesso:</label><br>
+        <input type="text" id="token-input" placeholder="Insira seu token aqui">
+        <button id="save-token-btn">Salvar Token</button>
+    </div>
+
     <button id="generate-video-btn">Gerar Vídeo</button>
     <p id="status-message"></p>
+
     <div id="fallback-link">
         <p>Se o download não começar automaticamente, <a id="manual-download" href="#" download>Clique aqui para baixar manualmente</a>.</p>
     </div>
@@ -108,11 +128,11 @@
                     throw new Error(result.message || 'Erro ao gerar vídeo');
                 }
 
-                const videoUrl = result.video_url;
-
-                if (!videoUrl.toLowerCase().endsWith('.mp4') && !videoUrl.toLowerCase().endsWith('.mp3')) {
-                    throw new Error('Formato inválido. Apenas .mp4 ou .mp3 são permitidos.');
+                if (!result.video_url) {
+                    throw new Error("A resposta não contém a URL do vídeo.");
                 }
+
+                const videoUrl = result.video_url;
 
                 // Prepara fallback
                 manualLink.href = videoUrl;
@@ -127,7 +147,7 @@
                 a.click();
                 document.body.removeChild(a);
 
-                // Contagem regressiva de 5 segundos
+                // Contagem regressiva
                 let seconds = 5;
                 statusMessage.innerHTML = `Vídeo gerado e download iniciado com sucesso!<br>Redirecionando para o login em <span id="countdown">${seconds}</span> segundos...`;
 
@@ -143,6 +163,24 @@
             } catch (error) {
                 statusMessage.textContent = 'Erro: ' + error.message;
                 fallbackDiv.style.display = 'none';
+                console.error('Erro ao gerar vídeo:', error);
+            }
+        });
+
+        document.getElementById('save-token-btn').addEventListener('click', () => {
+            const tokenInput = document.getElementById('token-input').value.trim();
+            if (tokenInput) {
+                localStorage.setItem('token', tokenInput);
+                alert('Token salvo com sucesso!');
+            } else {
+                alert('Por favor, insira um token válido.');
+            }
+        });
+
+        window.addEventListener('DOMContentLoaded', () => {
+            const savedToken = localStorage.getItem('token');
+            if (savedToken) {
+                document.getElementById('token-input').value = savedToken;
             }
         });
     </script>
