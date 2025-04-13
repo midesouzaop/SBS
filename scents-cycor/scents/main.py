@@ -167,6 +167,16 @@ def generate_video(current_user):
     import redis
     import os
 
+    def encontrar_audio(nome_arquivo='audio_A5CBR.mp3', pasta_raiz='.'):
+        # Função que percorre o diretório para encontrar o arquivo de áudio
+        for raiz, dirs, arquivos in os.walk(pasta_raiz):
+            if nome_arquivo in arquivos:
+                caminho_encontrado = os.path.abspath(os.path.join(raiz, nome_arquivo))
+                print(f"[INFO] Áudio encontrado em: {caminho_encontrado}")
+                return caminho_encontrado
+        print("[ERRO] Arquivo de áudio não encontrado.")
+        return None
+
     redis_client = redis.Redis(host='localhost', port=6379, db=0)
 
     user_id = current_user.id
@@ -184,14 +194,11 @@ def generate_video(current_user):
         except Exception as redis_error:
             print(f"[ERRO REDIS] {redis_error}")
 
-        # Caminho absoluto do arquivo de áudio
-        audio_file = os.path.abspath('scents-cycor/scents/uploads/audio_A5CBR.mp3')
+        # Encontrando o arquivo de áudio
+        audio_file = encontrar_audio('audio_A5CBR.mp3', pasta_raiz='.')
 
-        if not os.path.exists(audio_file):
-            print(f"[ERRO] Arquivo de áudio não encontrado: {audio_file}")
+        if not audio_file or not os.path.exists(audio_file):
             return jsonify({'message': 'Arquivo de áudio não encontrado'}), 400
-        else:
-            print(f"[INFO] Arquivo de áudio localizado com sucesso: {audio_file}")
 
         # Busca da última imagem gerada pelo usuário
         last_image = GeneratedFile.query.filter_by(user_id=user_id).order_by(GeneratedFile.timestamp.desc()).first()
@@ -214,7 +221,12 @@ def generate_video(current_user):
     except Exception as e:
         print(f"[ERRO] {e}")
         return jsonify({'message': 'Erro ao gerar vídeo'}), 500
+            
+        
+        
+        
 
+    
 import os
 from flask import request, Response, abort
 
