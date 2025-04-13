@@ -164,8 +164,10 @@ def check_usage(current_user):
 @limiter.limit("5 per minute")
 @token_required
 def generate_video(current_user):
-    import redis  # certifique-se de ter instalado o pacote redis
-    redis_client = redis.Redis(host='localhost', port=6379, db=0)  # configure conforme seu ambiente
+    import redis
+    import os
+
+    redis_client = redis.Redis(host='localhost', port=6379, db=0)
 
     user_id = current_user.id
     key = f"user:{user_id}:requests"
@@ -180,12 +182,18 @@ def generate_video(current_user):
             redis_client.incr(key)
             redis_client.expire(key, 60)
         except Exception as redis_error:
-            print(f"[ERRO REDIS] {redis_error}")  # Pode logar no Sentry, Rollbar, etc.
-            # Continua o fluxo mesmo se o Redis falhar
+            print(f"[ERRO REDIS] {redis_error}")
 
-        # Caminho absoluto para o áudio
+        # Caminho absoluto do arquivo de áudio
         audio_file = os.path.abspath('scents-cycor/scents/uploads/audio_A5CBR.mp3')
 
+        if not os.path.exists(audio_file):
+            print(f"[ERRO] Arquivo de áudio não encontrado: {audio_file}")
+            return jsonify({'message': 'Arquivo de áudio não encontrado'}), 400
+        else:
+            print(f"[INFO] Arquivo de áudio localizado com sucesso: {audio_file}")
+
+        # Busca da última imagem gerada pelo usuário
         last_image = GeneratedFile.query.filter_by(user_id=user_id).order_by(GeneratedFile.timestamp.desc()).first()
 
         if not last_image:
@@ -193,22 +201,19 @@ def generate_video(current_user):
 
         image_path = os.path.join(app.config['UPLOAD_FOLDER'], last_image.filename)
 
-        if not os.path.exists(audio_file):
-            print(f"[ERRO] Áudio não encontrado: {audio_file}")
-            return jsonify({'message': 'Arquivo de áudio não encontrado'}), 400
-
         if not os.path.exists(image_path):
-            print(f"[ERRO] Imagem não encontrada: {image_path}")
+            print(f"[ERRO] Arquivo de imagem não encontrado: {image_path}")
             return jsonify({'message': 'Arquivo de imagem não encontrado'}), 400
+        else:
+            print(f"[INFO] Arquivo de imagem localizado com sucesso: {image_path}")
 
         # Aqui você pode prosseguir com a geração do vídeo usando audio_file e image_path
+
+        return jsonify({'message': 'Recursos carregados com sucesso. Pronto para gerar vídeo.'}), 200
 
     except Exception as e:
         print(f"[ERRO] {e}")
         return jsonify({'message': 'Erro ao gerar vídeo'}), 500
-
-
-#import os
 
 import os
 from flask import request, Response, abort
