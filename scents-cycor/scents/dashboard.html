@@ -32,6 +32,7 @@
             cursor: pointer;
             width: 100%;
             max-width: 300px;
+            margin-top: 10px;
         }
 
         #generate-video-btn:hover, #save-token-btn:hover {
@@ -89,17 +90,17 @@
 <body>
     <h1>Gerador de Vídeos</h1>
 
+    <div style="margin-bottom: 30px;">
+        <label for="token-input">Token de Acesso:</label><br>
+        <input type="text" id="token-input" placeholder="Insira seu token aqui">
+        <button id="save-token-btn">Salvar Token</button>
+    </div>
+
     <button id="generate-video-btn">Gerar Vídeo</button>
     <p id="status-message"></p>
 
     <div id="fallback-link">
         <p>Se o download não começar automaticamente, <a id="manual-download" href="#" download>Clique aqui para baixar manualmente</a>.</p>
-    </div>
-
-    <div style="margin-top: 30px;">
-        <label for="token-input">Token de Acesso:</label><br>
-        <input type="text" id="token-input" placeholder="Insira seu token aqui">
-        <button id="save-token-btn">Salvar Token</button>
     </div>
 
     <script>
