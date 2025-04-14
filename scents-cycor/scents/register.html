@@ -77,6 +77,29 @@
         .botao:hover {
             background-color: darkblue;
         }
+
+        .dropdown {
+            position: relative;
+        }
+
+        .dropdown-content {
+            position: absolute;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            width: 100%;
+            z-index: 1;
+            border-radius: 5px;
+            margin-top: 5px;
+        }
+
+        .dropdown-content div {
+            padding: 10px;
+            cursor: pointer;
+        }
+
+        .dropdown-content div:hover {
+            background-color: #e0f0ff;
+        }
     </style>
 </head>
 <body>
@@ -110,6 +133,19 @@
                 <label for="cnpj">CNPJ:</label>
                 <input type="text" id="cnpj" placeholder="Digite seu CNPJ">
             </div>
+
+            <!-- Aroma Selector -->
+            <div class="input-container">
+                <label for="aromaSelect">Escolha um aroma:</label>
+                <div class="dropdown">
+                    <button class="botao" onclick="toggleAromaMenu()">Selecionar Aroma</button>
+                    <div id="aromaMenu" class="dropdown-content" style="display: none;">
+                        <div onclick="selecionarAroma('Café')">Aroma de Café</div>
+                    </div>
+                </div>
+                <p id="aromaSelecionado" style="margin-top: 5px;"></p>
+            </div>
+
             <p id="erro" class="erro"></p>
             <button class="botao" onclick="handlePagamento()">Pagar Agora</button>
         </div>
@@ -124,6 +160,7 @@
 
         const cnaesBloqueados = ["6319400", "7319001", "7312702", "9001901", "9001902", "9001904"];
         let planoSelecionado = null;
+        let aromaEscolhido = "";
 
         function carregarPlanos() {
             const planosContainer = document.getElementById("planos");
@@ -182,7 +219,24 @@
                 return;
             }
 
+            if (!aromaEscolhido) {
+                erro.textContent = "Por favor, selecione um aroma antes de prosseguir.";
+                return;
+            }
+
+            console.log("Aroma escolhido:", aromaEscolhido); // você pode usar esse valor como quiser
             window.location.href = planoSelecionado.link;
+        }
+
+        function toggleAromaMenu() {
+            const menu = document.getElementById("aromaMenu");
+            menu.style.display = menu.style.display === "none" ? "block" : "none";
+        }
+
+        function selecionarAroma(aroma) {
+            aromaEscolhido = aroma;
+            document.getElementById("aromaSelecionado").textContent = `Aroma selecionado: ${aroma}`;
+            document.getElementById("aromaMenu").style.display = "none";
         }
 
         carregarPlanos();
