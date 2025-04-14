@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cadastro</title>
+    <title>Planos de Pagamento</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -26,6 +26,23 @@
 
         h2 {
             text-align: center;
+        }
+
+        .plano {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+            border: 2px solid #ccc;
+            border-radius: 5px;
+            text-align: left;
+            cursor: pointer;
+            background-color: white;
+        }
+
+        .plano.selecionado {
+            border-color: blue;
+            background-color: #e0f0ff;
         }
 
         .input-container {
@@ -64,55 +81,93 @@
 </head>
 <body>
     <div class="container">
-        <h2>Cadastro</h2>
-        <div class="input-container">
-            <label for="nome">Nome:</label>
-            <input type="text" id="nome" placeholder="Digite seu nome">
+        <h2>Escolha seu plano</h2>
+
+        <div id="planos"></div>
+
+        <div id="formPagamento" style="display: none;">
+            <div class="input-container">
+                <label for="nomeUsuario">Nome de Usuário:</label>
+                <input type="text" id="nomeUsuario" placeholder="Digite seu nome de usuário">
+            </div>
+            <div class="input-container">
+                <label for="email">Email:</label>
+                <input type="email" id="email" placeholder="Digite seu email">
+            </div>
+            <div class="input-container">
+                <label for="senha">Senha:</label>
+                <input type="password" id="senha" placeholder="Digite sua senha">
+            </div>
+            <div class="input-container">
+                <label for="nome">Nome:</label>
+                <input type="text" id="nome" placeholder="Digite seu nome">
+            </div>
+            <div class="input-container">
+                <label for="sobrenome">Sobrenome:</label>
+                <input type="text" id="sobrenome" placeholder="Digite seu sobrenome">
+            </div>
+            <div class="input-container">
+                <label for="cnpj">CNPJ:</label>
+                <input type="text" id="cnpj" placeholder="Digite seu CNPJ">
+            </div>
+            <p id="erro" class="erro"></p>
+            <button class="botao" onclick="handlePagamento()">Pagar Agora</button>
         </div>
-        <div class="input-container">
-            <label for="sobrenome">Sobrenome:</label>
-            <input type="text" id="sobrenome" placeholder="Digite seu sobrenome">
-        </div>
-        <div class="input-container">
-            <label for="email">Email:</label>
-            <input type="email" id="email" placeholder="Digite seu email">
-        </div>
-        <div class="input-container">
-            <label for="whatsapp">WhatsApp:</label>
-            <input type="text" id="whatsapp" placeholder="Digite seu WhatsApp">
-        </div>
-        <div class="input-container">
-            <label for="cnpj">CNPJ:</label>
-            <input type="text" id="cnpj" placeholder="Digite seu CNPJ">
-        </div>
-        <div class="input-container">
-            <label for="username">Usuário:</label>
-            <input type="text" id="username" placeholder="Digite seu nome de usuário">
-        </div>
-        <div class="input-container">
-            <label for="password">Senha:</label>
-            <input type="password" id="password" placeholder="Digite sua senha">
-        </div>
-        <p id="erro" class="erro"></p>
-        <button class="botao" onclick="handleCadastro()">Enviar</button>
     </div>
 
     <script>
+        const planos = [
+            { nome: "Plano Experiência", preco: 2500, anuncios: 10, link: "https://www.asaas.com/c/cz6v5jokf25hefqa" },
+            { nome: "Plano Básico", preco: 5500, anuncios: 30, link: "https://www.asaas.com/c/pqvt4eey8kp3payi" },
+            { nome: "Plano MKT Profissional", preco: 9500, anuncios: 50, link: "https://www.asaas.com/c/lifkclg6htamx2yu" }
+        ];
+
+        const cnaesBloqueados = ["6319400", "7319001", "7312702", "9001901", "9001902", "9001904"];
+        let planoSelecionado = null;
+
+        function carregarPlanos() {
+            const planosContainer = document.getElementById("planos");
+            planos.forEach((plano, index) => {
+                const btn = document.createElement("button");
+                btn.classList.add("plano");
+                btn.innerHTML = `<strong>${plano.nome}</strong> - R$ ${plano.preco.toLocaleString("pt-BR")} / mês <br> ${plano.anuncios} anúncios mensais`;
+                btn.onclick = () => selecionarPlano(index);
+                planosContainer.appendChild(btn);
+            });
+        }
+
+        function selecionarPlano(index) {
+            planoSelecionado = planos[index];
+            document.querySelectorAll(".plano").forEach((btn, i) => {
+                btn.classList.toggle("selecionado", i === index);
+            });
+            document.getElementById("formPagamento").style.display = "block";
+        }
+
         function validarCNPJ(cnpj) {
             return cnpj.replace(/\D/g, "").length === 14;
         }
 
-        function handleCadastro() {
+        function consultarCNAEporCNPJ(cnpj) {
+            const cnpjLimpo = cnpj.replace(/\D/g, "");
+            const ultimosDigitos = parseInt(cnpjLimpo.slice(-4));
+            if (ultimosDigitos % 5 === 0) return "7319001"; // bloqueado
+            if (ultimosDigitos % 3 === 0) return "1052000"; // permitido
+            return "4637101"; // permitido
+        }
+
+        function handlePagamento() {
+            const nomeUsuario = document.getElementById("nomeUsuario").value.trim();
+            const email = document.getElementById("email").value.trim();
+            const senha = document.getElementById("senha").value.trim();
             const nome = document.getElementById("nome").value.trim();
             const sobrenome = document.getElementById("sobrenome").value.trim();
-            const email = document.getElementById("email").value.trim();
-            const whatsapp = document.getElementById("whatsapp").value.trim();
             const cnpj = document.getElementById("cnpj").value.trim();
             const erro = document.getElementById("erro");
             erro.textContent = "";
 
-            if (!nome || !sobrenome || !email || !whatsapp || !cnpj) {
-                erro.textContent = "Por favor, preencha todos os campos.";
+            if (!nomeUsuario || !email || !senha || !nome || !sobrenome) {
+                erro.textContent = "Por favor, preencha todos os campos obrigatórios.";
                 return;
             }
 
@@ -121,46 +176,16 @@
                 return;
             }
 
-            const username = document.getElementById("username").value.trim();
-            const password = document.getElementById("password").value.trim();
-
-            if (!username || !password) {
-                erro.textContent = "Usuário e senha são obrigatórios.";
+            const cnae = consultarCNAEporCNPJ(cnpj);
+            if (cnaesBloqueados.includes(cnae)) {
+                erro.textContent = "Este CNPJ pertence a uma atividade não autorizada para uso da tecnologia.";
                 return;
             }
 
-            const dados = {
-                nome,
-                sobrenome,
-                email,
-                whatsapp,
-                cpf_cnpj: cnpj,
-                username,
-                password
-            };
-
-            fetch("/register", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify(dados)
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error("Erro ao enviar os dados.");
-                }
-                return response.json();
-            })
-            .then(data => {
-                alert("Cadastro realizado com sucesso! Redirecionando para o login...");
-                window.location.href = "/login";
-            })
-            .catch(error => {
-                erro.textContent = "Falha ao enviar os dados. Tente novamente mais tarde.";
-                console.error("Erro:", error);
-            });
+            window.location.href = planoSelecionado.link;
         }
+
+        carregarPlanos();
     </script>
 </body>
 </html>
