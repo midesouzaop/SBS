@@ -49,6 +49,7 @@ class User(db.Model):
     username = db.Column(db.String(80), unique=True, nullable=False)
     password_hash = db.Column(db.String(128), nullable=False)
     whatsapp = db.Column(db.String(20))
+    razao_social = db.Column(db.String(120))  # Campo adicionado
     file_count = db.Column(db.Integer, default=0)
     generated_files = db.relationship('GeneratedFile', backref='user', lazy=True)
 
