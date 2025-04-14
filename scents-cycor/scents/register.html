@@ -122,6 +122,10 @@
                 <label for="cnpj">CNPJ:</label>
                 <input type="text" id="cnpj" placeholder="Digite seu CNPJ">
             </div>
+            <div class="input-container">
+                <label for="razaoSocial">Razão Social:</label>
+                <input type="text" id="razaoSocial" placeholder="Digite a razão social">
+            </div>
 
             <!-- Menu de aromas -->
             <div class="input-container">
@@ -135,7 +139,6 @@
             <button class="botao" onclick="handlePagamento()">Pagar Agora</button>
         </div>
 
-        <!-- Rodapé com copyright -->
         <div class="rodape">
             © 2025 <strong>Cycor Cibernética™</strong><br>
             Esta API e seu conteúdo são protegidos por direitos autorais. Todos os direitos reservados.<br>
@@ -192,12 +195,13 @@
             const nome = document.getElementById("nome").value.trim();
             const sobrenome = document.getElementById("sobrenome").value.trim();
             const cnpj = document.getElementById("cnpj").value.trim();
+            const razaoSocial = document.getElementById("razaoSocial").value.trim();
             const erro = document.getElementById("erro");
             const aroma = document.getElementById("aroma").value;
 
             erro.textContent = "";
 
-            if (!nomeUsuario || !email || !senha || !nome || !sobrenome) {
+            if (!nomeUsuario || !email || !senha || !nome || !sobrenome || !razaoSocial) {
                 erro.textContent = "Por favor, preencha todos os campos obrigatórios.";
                 return;
             }
