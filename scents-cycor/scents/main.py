@@ -395,7 +395,7 @@ def dashboard_page():
 def register():
     try:
         data = request.get_json()
-        required_fields = ['nome', 'sobrenome', 'email', 'cpf_cnpj', 'username', 'password']
+        required_fields = ['nome', 'sobrenome', 'email', 'cpf_cnpj', 'username', 'password', 'nome_fantasia']
 
         if not data or not all(field in data for field in required_fields):
             return jsonify({'message': 'Dados inválidos'}), 400
