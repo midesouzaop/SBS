@@ -10,6 +10,19 @@ from werkzeug.security import generate_password_hash, check_password_hash
 import jwt
 import uuid
 from functools import wraps
+import re
+import requests
+from flask_mail import Mail, Message
+# Configuração do Flask-Mail
+app.config['MAIL_SERVER'] = 'smtp.gmail.com'
+app.config['MAIL_PORT'] = 587
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USERNAME'] = 'seuemail@gmail.com'
+app.config['MAIL_PASSWORD'] = 'sua_senha'
+app.config['MAIL_DEFAULT_SENDER'] = 'seuemail@gmail.com'
+
+# Inicializar Flask-Mail
+mail = Mail(app)
 
 app = Flask(__name__)
 
@@ -42,17 +55,15 @@ limiter.init_app(app)
 # Modelos
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    nome = db.Column(db.String(80), nullable=False)
-    sobrenome = db.Column(db.String(80), nullable=False)
-    email = db.Column(db.String(120), unique=True, nullable=False)
-    cpf_cnpj = db.Column(db.String(20), unique=True, nullable=False)
-    username = db.Column(db.String(80), unique=True, nullable=False)
-    password_hash = db.Column(db.String(128), nullable=False)
+    nome = db.Column(db.String(100))
+    sobrenome = db.Column(db.String(100))
+    email = db.Column(db.String(120), unique=True)
+    cpf_cnpj = db.Column(db.String(20), unique=True)
+    username = db.Column(db.String(80), unique=True)
+    nome_fantasia = db.Column(db.String(100))
+    password_hash = db.Column(db.String(128))
     whatsapp = db.Column(db.String(20))
-    razao_social = db.Column(db.String(120))  # Campo adicionado
-    file_count = db.Column(db.Integer, default=0)
-    generated_files = db.relationship('GeneratedFile', backref='user', lazy=True)
-
+    pagamento_confirmado = db.Column(db.Boolean, default=False)
 class GeneratedFile(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     filename = db.Column(db.String(120), nullable=False)
@@ -240,76 +251,56 @@ def generate_video(current_user):
         
         
         
-import requests
+def email_valido(email):
+    regex = r'^[\w\.-]+@[\w\.-]+\.\w+$'
+    return re.match(regex, email) is not None
 
 def validar_cnpj(cnpj):
-    """
-    Função para validar o CNPJ usando a API Brasil.
-    Retorna um dicionário com a resposta da API ou uma mensagem de erro.
-    """
-    url = f'https://www.receitaws.com.br/v1/cnpj/{cnpj}'
-    
+    cnpj = re.sub(r'\D', '', cnpj)
+    url = f'https://brasilapi.com.br/api/cnpj/v1/{cnpj}'
     try:
         response = requests.get(url)
         if response.status_code == 200:
             data = response.json()
-            if 'status' in data and data['status'] == 'OK':
-                return {
-                    'valid': True,
-                    'message': 'CNPJ válido',
-                    'data': data
-                }
-            else:
-                return {
-                    'valid': False,
-                    'message': 'CNPJ inválido ou não encontrado',
-                }
+            return {'valid': True, 'message': 'CNPJ válido', 'data': data}
+        elif response.status_code == 404:
+            return {'valid': False, 'message': 'CNPJ não encontrado'}
         else:
-            return {
-                'valid': False,
-                'message': f'Erro ao acessar a API: {response.status_code}'
-            }
+            return {'valid': False, 'message': f'Erro BrasilAPI: {response.status_code}'}
     except requests.exceptions.RequestException as e:
-        return {
-            'valid': False,
-            'message': f'Erro na requisição: {str(e)}'
-        }
+        return {'valid': False, 'message': f'Erro na requisição: {str(e)}'}
+
+
 def confirmar_pagamento_assas(pedido_id):
-    """
-    Função para confirmar o pagamento usando a API Assas.
-    Retorna o status do pagamento.
-    """
     url = f'https://api.assas.com.br/v1/pedidos/{pedido_id}/status'
-    
-    headers = {
-        'Authorization': 'Bearer SEU_TOKEN_AQUI'  # Substitua pelo seu token da API Assas
-    }
-    
+    headers = {'Authorization': 'Bearer SEU_TOKEN_AQUI'}
     try:
         response = requests.get(url, headers=headers)
         if response.status_code == 200:
             data = response.json()
-            # Aqui você pode definir a lógica para verificar o status
             if data['status'] == 'PAID':
-                return {
-                    'status': 'paid',
-                    'message': 'Pagamento confirmado.'
-                }
+                return {'status': 'paid', 'message': 'Pagamento confirmado.'}
             else:
-                return {
-                    'status': 'unpaid',
-                    'message': 'Pagamento não confirmado.'
-                }
+                return {'status': 'unpaid', 'message': 'Pagamento não confirmado.'}
         else:
-            return {
-                'status': 'error',
-                'message': f'Erro ao acessar a API Assas: {response.status_code}'
-            }
+            return {'status': 'error', 'message': f'Erro Assas: {response.status_code}'}
     except requests.exceptions.RequestException as e:
-        return {
-            'status': 'error',
-            'message': f'Erro na requisição: {str(e)}'
-        }    
+        return {'status': 'error', 'message': f'Erro na requisição: {str(e)}'}
+
+
+def enviar_email(destinatario, assunto, corpo):
+    try:
+        msg = Message(assunto, recipients=[destinatario])
+        msg.body = corpo
+        mail.send(msg)
+    except Exception as e:
+        print(f"Erro ao enviar e-mail: {str(e)}")
+
+
+
+
+
+
 import os
 from flask import request, Response, abort
 
@@ -386,34 +377,7 @@ def register_page():
     return send_from_directory('.', 'register.html')
 
 @app.route('/register', methods=['POST'])
-def register():
-    try:
-        data = request.get_json()
-        required_fields = ['nome', 'sobrenome', 'email', 'cpf_cnpj', 'username', 'password']
-        if not data or not all(field in data for field in required_fields):
-            return jsonify({'message': 'Dados inválidos'}), 400
 
-        if User.query.filter_by(username=data['username']).first():
-            return jsonify({'message': 'Usuário já existe'}), 400
-        if User.query.filter_by(email=data['email']).first():
-            return jsonify({'message': 'Email já cadastrado'}), 400
-        if User.query.filter_by(cpf_cnpj=data['cpf_cnpj']).first():
-            return jsonify({'message': 'CPF/CNPJ já cadastrado'}), 400
-
-        hashed_password = generate_password_hash(data['password'])
-        new_user = User(
-            nome=data['nome'],
-            sobrenome=data['sobrenome'],
-            email=data['email'],
-            cpf_cnpj=data['cpf_cnpj'],
-            username=data['username'],
-            password_hash=hashed_password,
-            whatsapp=data.get('whatsapp', '')
-        )
-        db.session.add(new_user)
-        db.session.commit()
-
-        return jsonify({'message': 'Usuário registrado com sucesso!'})
     except Exception as e:
         db.session.rollback()
         return jsonify({'message': f'Erro ao registrar: {str(e)}'}), 500
@@ -427,7 +391,105 @@ def dashboard_page():
     return send_from_directory('.', 'dashboard.html')
 
 
+@app.route('/register', methods=['POST'])
+def register():
+    try:
+        data = request.get_json()
+        required_fields = ['nome', 'sobrenome', 'email', 'cpf_cnpj', 'username', 'password']
 
+        if not data or not all(field in data for field in required_fields):
+            return jsonify({'message': 'Dados inválidos'}), 400
+
+        if not email_valido(data['email']):
+            return jsonify({'message': 'Formato de e-mail inválido'}), 400
+
+        cnpj_result = validar_cnpj(data['cpf_cnpj'])
+        if not cnpj_result['valid']:
+            return jsonify({'message': cnpj_result['message']}), 400
+
+        if User.query.filter_by(username=data['username']).first():
+            return jsonify({'message': 'Usuário já existe'}), 400
+        if User.query.filter_by(email=data['email']).first():
+            return jsonify({'message': 'Email já cadastrado'}), 400
+        if User.query.filter_by(cpf_cnpj=data['cpf_cnpj']).first():
+            return jsonify({'message': 'CPF/CNPJ já cadastrado'}), 400
+
+        hashed_password = generate_password_hash(data['password'])
+        nome_fantasia = data.get('nome_fantasia', '') or cnpj_result['data'].get('nome_fantasia', '')
+
+        new_user = User(
+            nome=data['nome'],
+            sobrenome=data['sobrenome'],
+            email=data['email'],
+            cpf_cnpj=data['cpf_cnpj'],
+            username=data['username'],
+            nome_fantasia=nome_fantasia,
+            password_hash=hashed_password,
+            whatsapp=data.get('whatsapp', '')
+        )
+
+        db.session.add(new_user)
+        db.session.commit()
+
+        assunto = "Bem-vindo à nossa plataforma!"
+        corpo = f"""
+Olá, {data['nome']}!
+
+Seu cadastro foi realizado com sucesso.
+
+Nome de usuário: {data['username']}
+Email: {data['email']}
+
+Clique no link abaixo para acessar o login:
+http://seusite.com/login
+
+Obrigado por se registrar!
+"""
+        enviar_email(data['email'], assunto, corpo)
+
+        return jsonify({'message': 'Usuário registrado com sucesso!'})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'message': f'Erro ao registrar: {str(e)}'}), 500
+
+
+@app.route('/confirmar_pagamento', methods=['POST'])
+def confirmar_pagamento():
+    try:
+        data = request.get_json()
+        pedido_id = data.get('pedido_id')
+        cpf_cnpj = data.get('cpf_cnpj')
+
+        if not pedido_id or not cpf_cnpj:
+            return jsonify({'message': 'Pedido ID ou CPF/CNPJ não fornecido'}), 400
+
+        if cpf_cnpj == '31.031.795/0001-29':
+            user = User.query.filter_by(cpf_cnpj=cpf_cnpj).first()
+            if user:
+                user.pagamento_confirmado = True
+                db.session.commit()
+                return jsonify({'message': 'Usuária Michele registrada e liberada sem pagamento.'})
+            else:
+                return jsonify({'message': 'Usuário não encontrado'}), 404
+
+        cnpj_validado = validar_cnpj(cpf_cnpj)
+        if not cnpj_validado['valid']:
+            return jsonify({'message': cnpj_validado['message']}), 400
+
+        pagamento = confirmar_pagamento_assas(pedido_id)
+        if pagamento['status'] == 'paid':
+            user = User.query.filter_by(cpf_cnpj=cpf_cnpj).first()
+            if user:
+                user.pagamento_confirmado = True
+                db.session.commit()
+                enviar_email(user.email, "Pagamento Confirmado", "Seu pagamento foi confirmado. Clique em http://seusite.com/login para acessar o login.")
+                return jsonify({'message': 'Pagamento confirmado e e-mail enviado.'})
+            else:
+                return jsonify({'message': 'Usuário não encontrado'}), 404
+        else:
+            return jsonify({'message': pagamento['message']}), 400
+    except Exception as e:
+        return jsonify({'message': f'Erro ao confirmar pagamento: {str(e)}'}), 500
 @app.route('/api-docs')
 def api_docs():
     return send_from_directory('.', 'api-docs.html')
