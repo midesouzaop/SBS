@@ -12,9 +12,13 @@
             padding: 20px;
             display: flex;
             flex-direction: column;
-            justify-content: center;
             align-items: center;
             min-height: 100vh;
+        }
+
+        .login-link {
+            text-align: center;
+            margin-bottom: 20px;
         }
 
         .container {
@@ -80,11 +84,6 @@
             background-color: darkblue;
         }
 
-        .login-link {
-            text-align: center;
-            margin-top: 10px;
-        }
-
         footer {
             margin-top: 30px;
             text-align: center;
@@ -95,6 +94,11 @@
     </style>
 </head>
 <body>
+
+    <div class="login-link">
+        Já tem uma conta? <a href="/login">Clique aqui para fazer login</a>
+    </div>
+
     <div class="container">
         <h2>Escolha seu plano</h2>
 
@@ -138,10 +142,6 @@
 
             <p id="erro" class="erro"></p>
             <button class="botao" onclick="handlePagamento()">Pagar Agora</button>
-
-            <div class="login-link">
-                Já tem uma conta? <a href="/login">Clique aqui para fazer login</a>
-            </div>
         </div>
     </div>
 
@@ -188,9 +188,9 @@
         function consultarCNAEporCNPJ(cnpj) {
             const cnpjLimpo = cnpj.replace(/\D/g, "");
             const ultimosDigitos = parseInt(cnpjLimpo.slice(-4));
-            if (ultimosDigitos % 5 === 0) return "7319001"; // bloqueado
-            if (ultimosDigitos % 3 === 0) return "1052000"; // permitido
-            return "4637101"; // permitido
+            if (ultimosDigitos % 5 === 0) return "7319001";
+            if (ultimosDigitos % 3 === 0) return "1052000";
+            return "4637101";
         }
 
         function handlePagamento() {
