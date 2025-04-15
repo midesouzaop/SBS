@@ -337,7 +337,7 @@ Seu cadastro foi realizado com sucesso.
 
 Nome de usuário: {data['username']}
 Email: {data['email']}
-Senha:  {data['password_hash']}
+Senha:  insira sua senha
 """
         enviar_email(data['email'], assunto, corpo)
 
