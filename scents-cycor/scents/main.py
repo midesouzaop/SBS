@@ -152,16 +152,6 @@ def token_required(f):
 def login_page():
     return send_from_directory('.', 'login.html')
 
-@app.route('/login', methods=['POST'])
-def login():
-    data = request.json
-    username = data['username']
-    password = data['password']
-    user = User.query.filter_by(username=username).first()
-    if user and check_password_hash(user.password_hash, password):
-        token = generate_token(user.id)
-        return jsonify({'message': 'Login bem-sucedido', 'token': token})
-    return jsonify({'message': 'Credenciais inválidas'}), 401
 
 @app.route('/check_usage', methods=['GET'])
 @token_required
@@ -356,6 +346,16 @@ Senha:  {data['password_hash']}
         db.session.rollback()
         return jsonify({'message': f'Erro ao registrar: {str(e)}'}), 500
 
+@app.route('/login', methods=['POST'])
+def login():
+    data = request.json
+    username = data['username']
+    password = data['password']
+    user = User.query.filter_by(username=username).first()
+    if user and check_password_hash(user.password_hash, password):
+        token = generate_token(user.id)
+        return jsonify({'message': 'Login bem-sucedido', 'token': token})
+    return jsonify({'message': 'Credenciais inválidas'}), 401
 
 @app.route('/confirmar_pagamento', methods=['POST'])
 def confirmar_pagamento():
