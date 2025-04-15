@@ -240,8 +240,76 @@ def generate_video(current_user):
         
         
         
+import requests
 
+def validar_cnpj(cnpj):
+    """
+    Função para validar o CNPJ usando a API Brasil.
+    Retorna um dicionário com a resposta da API ou uma mensagem de erro.
+    """
+    url = f'https://www.receitaws.com.br/v1/cnpj/{cnpj}'
     
+    try:
+        response = requests.get(url)
+        if response.status_code == 200:
+            data = response.json()
+            if 'status' in data and data['status'] == 'OK':
+                return {
+                    'valid': True,
+                    'message': 'CNPJ válido',
+                    'data': data
+                }
+            else:
+                return {
+                    'valid': False,
+                    'message': 'CNPJ inválido ou não encontrado',
+                }
+        else:
+            return {
+                'valid': False,
+                'message': f'Erro ao acessar a API: {response.status_code}'
+            }
+    except requests.exceptions.RequestException as e:
+        return {
+            'valid': False,
+            'message': f'Erro na requisição: {str(e)}'
+        }
+def confirmar_pagamento_assas(pedido_id):
+    """
+    Função para confirmar o pagamento usando a API Assas.
+    Retorna o status do pagamento.
+    """
+    url = f'https://api.assas.com.br/v1/pedidos/{pedido_id}/status'
+    
+    headers = {
+        'Authorization': 'Bearer SEU_TOKEN_AQUI'  # Substitua pelo seu token da API Assas
+    }
+    
+    try:
+        response = requests.get(url, headers=headers)
+        if response.status_code == 200:
+            data = response.json()
+            # Aqui você pode definir a lógica para verificar o status
+            if data['status'] == 'PAID':
+                return {
+                    'status': 'paid',
+                    'message': 'Pagamento confirmado.'
+                }
+            else:
+                return {
+                    'status': 'unpaid',
+                    'message': 'Pagamento não confirmado.'
+                }
+        else:
+            return {
+                'status': 'error',
+                'message': f'Erro ao acessar a API Assas: {response.status_code}'
+            }
+    except requests.exceptions.RequestException as e:
+        return {
+            'status': 'error',
+            'message': f'Erro na requisição: {str(e)}'
+        }    
 import os
 from flask import request, Response, abort
 
