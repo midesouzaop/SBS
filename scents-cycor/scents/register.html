@@ -2,56 +2,95 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <title>Planos de Assinatura</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Planos de Pagamento</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #f2f2f2;
+            background-color: #f4f4f4;
             margin: 0;
-            padding: 0;
-        }
-        .container {
-            max-width: 800px;
-            margin: auto;
             padding: 20px;
-            background-color: white;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
         }
+
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            max-width: 400px;
+            width: 100%;
+        }
+
         h2 {
             text-align: center;
         }
-        .input-container {
-            margin: 15px 0;
-        }
-        label {
+
+        .plano {
             display: block;
-            margin-bottom: 5px;
-        }
-        input, select {
             width: 100%;
             padding: 10px;
-            box-sizing: border-box;
-        }
-        .botao {
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            padding: 10px 20px;
+            margin: 5px 0;
+            border: 2px solid #ccc;
+            border-radius: 5px;
+            text-align: left;
             cursor: pointer;
-            display: block;
+            background-color: white;
+        }
+
+        .plano.selecionado {
+            border-color: blue;
+            background-color: #e0f0ff;
+        }
+
+        .input-container {
+            margin-top: 10px;
+        }
+
+        input, select {
             width: 100%;
-            margin-top: 20px;
+            padding: 8px;
+            margin-top: 5px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
         }
-        .botao:hover {
-            background-color: #45a049;
-        }
+
         .erro {
             color: red;
-            text-align: center;
+            font-size: 14px;
+            margin-top: 5px;
         }
+
+        .botao {
+            width: 100%;
+            background-color: blue;
+            color: white;
+            padding: 10px;
+            margin-top: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .botao:hover {
+            background-color: darkblue;
+        }
+
         .login-link {
             text-align: center;
-            margin: 15px 0;
+            margin-top: 10px;
+        }
+
+        footer {
+            margin-top: 30px;
+            text-align: center;
+            font-size: 12px;
+            color: #666;
+            max-width: 400px;
         }
     </style>
 </head>
@@ -60,11 +99,6 @@
         <h2>Escolha seu plano</h2>
 
         <div id="planos"></div>
-
-        <!-- Link para login -->
-        <div class="login-link">
-            <p>Já tem uma conta? <a href="login.html">Faça login aqui</a></p>
-        </div>
 
         <div id="formPagamento" style="display: none;">
             <div class="input-container">
@@ -88,15 +122,13 @@
                 <input type="text" id="sobrenome" placeholder="Digite seu sobrenome">
             </div>
             <div class="input-container">
-                <label for="cnpj">CNPJ:</label>
-                <input type="text" id="cnpj" placeholder="Digite seu CNPJ">
-            </div>
-            <div class="input-container">
                 <label for="razaoSocial">Razão Social:</label>
                 <input type="text" id="razaoSocial" placeholder="Digite a razão social">
             </div>
-
-            <!-- Menu de aromas -->
+            <div class="input-container">
+                <label for="cnpj">CNPJ:</label>
+                <input type="text" id="cnpj" placeholder="Digite seu CNPJ">
+            </div>
             <div class="input-container">
                 <label for="aroma">Escolha o aroma:</label>
                 <select id="aroma">
@@ -106,36 +138,92 @@
 
             <p id="erro" class="erro"></p>
             <button class="botao" onclick="handlePagamento()">Pagar Agora</button>
+
+            <div class="login-link">
+                Já tem uma conta? <a href="/login">Clique aqui para fazer login</a>
+            </div>
         </div>
     </div>
 
-    <script>
-        function handlePagamento() {
-            // Aqui vai o código para processar o pagamento
-            const nomeUsuario = document.getElementById('nomeUsuario').value;
-            const email = document.getElementById('email').value;
-            const senha = document.getElementById('senha').value;
-            const nome = document.getElementById('nome').value;
-            const sobrenome = document.getElementById('sobrenome').value;
-            const cnpj = document.getElementById('cnpj').value;
-            const razaoSocial = document.getElementById('razaoSocial').value;
-            const aroma = document.getElementById('aroma').value;
+    <footer>
+        © 2025 Cycor Cibernética™<br>
+        Esta API e seu conteúdo são protegidos por direitos autorais. Todos os direitos reservados.<br>
+        Uso não autorizado é proibido.<br>
+        <a href="mailto:contato@cycor.com.br">contato@cycor.com.br</a>
+    </footer>
 
-            if (!nomeUsuario || !email || !senha || !nome || !sobrenome || !cnpj || !razaoSocial) {
-                document.getElementById('erro').textContent = "Preencha todos os campos.";
+    <script>
+        const planos = [
+            { nome: "Plano Experiência", preco: 2500, anuncios: 10, link: "https://www.asaas.com/c/cz6v5jokf25hefqa" },
+            { nome: "Plano Básico", preco: 5500, anuncios: 30, link: "https://www.asaas.com/c/pqvt4eey8kp3payi" },
+            { nome: "Plano MKT Profissional", preco: 9500, anuncios: 50, link: "https://www.asaas.com/c/lifkclg6htamx2yu" }
+        ];
+
+        const cnaesBloqueados = ["6319400", "7319001", "7312702", "9001901", "9001902", "9001904"];
+        let planoSelecionado = null;
+
+        function carregarPlanos() {
+            const planosContainer = document.getElementById("planos");
+            planos.forEach((plano, index) => {
+                const btn = document.createElement("button");
+                btn.classList.add("plano");
+                btn.innerHTML = `<strong>${plano.nome}</strong> - R$ ${plano.preco.toLocaleString("pt-BR")} / mês <br> ${plano.anuncios} anúncios mensais`;
+                btn.onclick = () => selecionarPlano(index);
+                planosContainer.appendChild(btn);
+            });
+        }
+
+        function selecionarPlano(index) {
+            planoSelecionado = planos[index];
+            document.querySelectorAll(".plano").forEach((btn, i) => {
+                btn.classList.toggle("selecionado", i === index);
+            });
+            document.getElementById("formPagamento").style.display = "block";
+        }
+
+        function validarCNPJ(cnpj) {
+            return cnpj.replace(/\D/g, "").length === 14;
+        }
+
+        function consultarCNAEporCNPJ(cnpj) {
+            const cnpjLimpo = cnpj.replace(/\D/g, "");
+            const ultimosDigitos = parseInt(cnpjLimpo.slice(-4));
+            if (ultimosDigitos % 5 === 0) return "7319001"; // bloqueado
+            if (ultimosDigitos % 3 === 0) return "1052000"; // permitido
+            return "4637101"; // permitido
+        }
+
+        function handlePagamento() {
+            const nomeUsuario = document.getElementById("nomeUsuario").value.trim();
+            const email = document.getElementById("email").value.trim();
+            const senha = document.getElementById("senha").value.trim();
+            const nome = document.getElementById("nome").value.trim();
+            const sobrenome = document.getElementById("sobrenome").value.trim();
+            const razaoSocial = document.getElementById("razaoSocial").value.trim();
+            const cnpj = document.getElementById("cnpj").value.trim();
+            const erro = document.getElementById("erro");
+            erro.textContent = "";
+
+            if (!nomeUsuario || !email || !senha || !nome || !sobrenome || !razaoSocial) {
+                erro.textContent = "Por favor, preencha todos os campos obrigatórios.";
                 return;
             }
 
-            // Lógica para continuar com o pagamento...
-            alert('Pagamento realizado com sucesso!');
+            if (!validarCNPJ(cnpj)) {
+                erro.textContent = "CNPJ inválido. Verifique e tente novamente.";
+                return;
+            }
+
+            const cnae = consultarCNAEporCNPJ(cnpj);
+            if (cnaesBloqueados.includes(cnae)) {
+                erro.textContent = "Este CNPJ pertence a uma atividade não autorizada para uso da tecnologia.";
+                return;
+            }
+
+            window.location.href = planoSelecionado.link;
         }
 
-        // Simulação de escolha de plano
-        document.getElementById('planos').innerHTML = `
-            <button class="botao" onclick="document.getElementById('formPagamento').style.display='block'">
-                Selecionar Plano Mensal - R$29,90
-            </button>
-        `;
+        carregarPlanos();
     </script>
 </body>
 </html>
