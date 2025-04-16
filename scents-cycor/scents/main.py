@@ -163,13 +163,13 @@ def check_usage(current_user):
         'message': 'Uso verificado com sucesso'
     })
 
+
+
 @app.route('/generate_video', methods=['POST'])
 @limiter.limit("5 per minute")
 @token_required
 def generate_video(current_user):
-    import redis
-    import os
-
+    
     def encontrar_audio(nome_arquivo='audio_A5CBR.mp3', pasta_raiz='.'):
         for raiz, dirs, arquivos in os.walk(pasta_raiz):
             if nome_arquivo in arquivos:
@@ -180,46 +180,41 @@ def generate_video(current_user):
         return None
 
     redis_client = redis.Redis(host='localhost', port=6379, db=0)
-
     user_id = current_user.id
     key = f"user:{user_id}:requests"
 
     try:
-        try:
-            requests_made = redis_client.get(key)
-            if requests_made and int(requests_made.decode()) >= 5:
-                return jsonify({'message': 'Limite de requisições por minuto atingido'}), 429
+        # Verificar o limite de requisições por minuto
+        requests_made = redis_client.get(key)
+        if requests_made and int(requests_made.decode()) >= 5:
+            return jsonify({'message': 'Limite de requisições por minuto atingido'}), 429
 
-            redis_client.incr(key)
-            redis_client.expire(key, 60)
-        except Exception as redis_error:
-            print(f"[ERRO REDIS] {redis_error}")
+        redis_client.incr(key)
+        redis_client.expire(key, 60)
 
+        # Procurar o arquivo de áudio
         audio_file = encontrar_audio('audio_A5CBR.mp3', pasta_raiz='.')
-
         if not audio_file or not os.path.exists(audio_file):
             return jsonify({'message': 'Arquivo de áudio não encontrado'}), 400
 
+        # Procurar a última imagem gerada
         last_image = GeneratedFile.query.filter_by(user_id=user_id).order_by(GeneratedFile.timestamp.desc()).first()
-
         if not last_image:
             return jsonify({'message': 'Nenhuma imagem encontrada'}), 400
 
         image_path = os.path.join(app.config['UPLOAD_FOLDER'], last_image.filename)
-
         if not os.path.exists(image_path):
             print(f"[ERRO] Arquivo de imagem não encontrado: {image_path}")
             return jsonify({'message': 'Arquivo de imagem não encontrado'}), 400
         else:
             print(f"[INFO] Arquivo de imagem localizado com sucesso: {image_path}")
 
-        # Caminho completo de saída
+        # Caminho para o vídeo gerado
         video_filename = f"video_user_{user_id}_{uuid.uuid4().hex}.mp4"
         video_path = os.path.join(app.config['UPLOAD_FOLDER'], video_filename)
 
-        # Gerar vídeo com imagem + áudio
+        # Gerar o vídeo
         sucesso = generate_video_with_audio(image_path, audio_file, video_path)
-
         if not sucesso or not os.path.exists(video_path):
             return jsonify({'message': 'Falha ao gerar vídeo'}), 500
 
