@@ -134,6 +134,10 @@
       <input type="text" id="cnpj" placeholder="Digite seu CNPJ">
     </div>
     <div class="input-container">
+      <label for="whatsapp">WhatsApp:</label>
+      <input type="text" id="whatsapp" placeholder="(00) 00000-0000">
+    </div>
+    <div class="input-container">
       <label for="aroma">Escolha o aroma:</label>
       <select id="aroma">
         <option value="cafe">Café</option>
@@ -204,11 +208,12 @@
     const sobrenome = document.getElementById("sobrenome").value.trim();
     const razaoSocial = document.getElementById("razaoSocial").value.trim();
     const cnpj = document.getElementById("cnpj").value.trim();
+    const whatsapp = document.getElementById("whatsapp").value.trim();
     const aroma = document.getElementById("aroma").value;
     const erro = document.getElementById("erro");
     erro.textContent = "";
 
-    if (!nomeUsuario || !email || !senha || !nome || !sobrenome || !razaoSocial) {
+    if (!nomeUsuario || !email || !senha || !nome || !sobrenome || !razaoSocial || !whatsapp) {
       erro.textContent = "Por favor, preencha todos os campos obrigatórios.";
       return;
     }
@@ -237,7 +242,8 @@
         sobrenome,
         razaoSocial,
         cnpj,
-        aroma
+        aroma,
+        whatsapp
       })
     })
     .then(res => {
