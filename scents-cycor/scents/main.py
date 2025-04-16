@@ -245,6 +245,7 @@ def email_valido(email):
     regex = r'^[\w\.-]+@[\w\.-]+\.\w+$'
     return re.match(regex, email) is not None
 
+
 def validar_cnpj(cnpj):
     cnpj = re.sub(r'\D', '', cnpj)
     url = f'https://brasilapi.com.br/api/cnpj/v1/{cnpj}'
@@ -259,6 +260,17 @@ def validar_cnpj(cnpj):
             return {'valid': False, 'message': f'Erro BrasilAPI: {response.status_code}'}
     except requests.exceptions.RequestException as e:
         return {'valid': False, 'message': f'Erro na requisição: {str(e)}'}
+
+
+def enviar_email(destinatario, assunto, corpo):
+    try:
+        msg = Message(assunto, recipients=[destinatario])
+        msg.body = corpo
+        mail.send(msg)
+    except Exception as e:
+        print(f"Erro ao enviar e-mail: {str(e)}")
+
+
 
 
 def confirmar_pagamento_assas(pedido_id):
@@ -357,28 +369,52 @@ def login():
         return jsonify({'message': 'Login bem-sucedido', 'token': token})
     return jsonify({'message': 'Credenciais inválidas'}), 401
 import json
+@app.route('/api/autorizados', methods=['POST'])
+def adicionar_usuario():
+    dados = request.json
+    novo_usuario = {
+        "nome_usuario": dados.get("nomeUsuario"),
+        "email": dados.get("email"),
+        "senha": dados.get("senha"),
+        "nome": dados.get("nome"),
+        "sobrenome": dados.get("sobrenome"),
+        "razao_social": dados.get("razaoSocial"),
+        "cnpj": dados.get("cnpj"),
+        "aroma": dados.get("aroma")
+    }
 
+    if os.path.exists(ARQUIVO):
+        with open(ARQUIVO, 'r') as f:
+            usuarios = json.load(f)
+    else:
+        usuarios = []
+
+    usuarios.append(novo_usuario)
+
+    with open(ARQUIVO, 'w') as f:
+        json.dump(usuarios, f, indent=4)
+
+    return jsonify({"mensagem": "Usuário autorizado e salvo com sucesso."}), 201
 @app.route('/confirmar_pagamento', methods=['POST'])
 def confirmar_pagamento():
     try:
         data = request.get_json()
         pedido_id = data.get('pedido_id')
         cpf_cnpj = data.get('cpf_cnpj')
+        email_usuario = data.get('email')
 
         if not pedido_id or not cpf_cnpj:
             return jsonify({'message': 'Pedido ID ou CPF/CNPJ não fornecido'}), 400
 
-        # Verificação de autorização por e-mail
-        email_usuario = data.get('email')
         try:
-            with open("usuarios_autorizados.json", "r") as arquivo:
+            with open(ARQUIVO, "r") as arquivo:
                 dados_autorizados = json.load(arquivo)
-            if email_usuario not in dados_autorizados["usuarios"]:
+            autorizados_emails = [u["email"] for u in dados_autorizados]
+            if email_usuario not in autorizados_emails:
                 return jsonify({'message': 'Usuário não autorizado'}), 403
         except Exception as e:
             return jsonify({'message': f'Erro ao verificar autorização: {str(e)}'}), 500
 
-        # Caso especial para Michele
         if cpf_cnpj == '31.031.795/0001-29':
             user = User.query.filter_by(cpf_cnpj=cpf_cnpj).first()
             if user:
@@ -391,8 +427,6 @@ def confirmar_pagamento():
         cnpj_validado = validar_cnpj(cpf_cnpj)
         if not cnpj_validado['valid']:
             return jsonify({'message': cnpj_validado['message']}), 400
-
-        # pagamento = confirmar_pagamento_assas(pedido_id)
 
         user = User.query.filter_by(cpf_cnpj=cpf_cnpj).first()
         if user:
@@ -422,7 +456,6 @@ Link para login:
 
     except Exception as e:
         return jsonify({'message': f'Erro ao confirmar pagamento: {str(e)}'}), 500
-
 import os
 from flask import request, Response, abort
 
