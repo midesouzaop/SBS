@@ -423,7 +423,7 @@ def confirmar_pagamento():
                     username='powerful',
                     nome_fantasia='Cycor Cibernética',
                     password_hash=generate_password_hash('universo10'),
-                    whatsapp='+55419218-8569',
+                    whatsapp='4192188569',
                     pagamento_confirmado=True
                 )
                 db.session.add(user)
