@@ -13,7 +13,8 @@ from functools import wraps
 import re
 import requests
 from flask_mail import Mail, Message
-
+#import datetime
+from yourapp import app, db, mail 
 app = Flask(__name__)
 
 
@@ -74,7 +75,13 @@ class GeneratedFile(db.Model):
     filename = db.Column(db.String(120), nullable=False)
     timestamp = db.Column(db.DateTime, default=datetime.datetime.utcnow)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-
+class LogEmail(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    destinatario = db.Column(db.String(120))
+    assunto = db.Column(db.String(255))
+    status = db.Column(db.String(50))
+    erro = db.Column(db.Text, nullable=True)
+    data_envio = db.Column(db.DateTime, default=datetime.datetime.utcnow)
 with app.app_context():
     db.drop_all()
     db.create_all()
@@ -262,16 +269,66 @@ def validar_cnpj(cnpj):
         return {'valid': False, 'message': f'Erro na requisição: {str(e)}'}
 
 
-# ======= FUNÇÃO PARA ENVIO DE EMAIL =======
 def enviar_email(destinatario, assunto, corpo):
     try:
-        with app.app_context():
-            msg = Message(assunto, recipients=[destinatario])
-            msg.body = corpo
-            mail.send(msg)
-            print("E-mail enviado com sucesso!")
+        msg = Message(assunto, recipients=[destinatario])
+        msg.body = corpo
+        mail.send(msg)
+
+        # Log no arquivo
+        with open("envio_emails.log", "a") as log_file:
+            log_file.write(f"[{datetime.datetime.now()}] E-mail enviado para {destinatario} | Assunto: {assunto}\n")
+
+        # Log no banco
+        log = LogEmail(destinatario=destinatario, assunto=assunto, status="Sucesso")
+        db.session.add(log)
+        db.session.commit()
+
+        print(f"E-mail enviado com sucesso para {destinatario}")
+
     except Exception as e:
-        print(f"Erro ao enviar e-mail: {str(e)}")
+        erro = str(e)
+
+        with open("envio_emails.log", "a") as log_file:
+            log_file.write(f"[{datetime.datetime.now()}] ERRO ao enviar e-mail para {destinatario} | Erro: {erro}\n")
+
+        log = LogEmail(destinatario=destinatario, assunto=assunto, status="Erro", erro=erro)
+        db.session.add(log)
+        db.session.commit()
+
+        print(f"Erro ao enviar e-mail: {erro}")
+@app.route('/emails_enviados', methods=['GET'])
+def listar_emails_enviados():
+    try:
+        email = request.args.get('email')
+        
+        with open("usuarios_autorizados.json", "r") as arquivo:
+            dados_autorizados = json.load(arquivo)
+
+        if email not in dados_autorizados["usuarios"]:
+            return jsonify({'message': 'Usuário não autorizado'}), 403
+
+        status_filtro = request.args.get('status')
+
+        query = LogEmail.query
+        if status_filtro:
+            query = query.filter_by(status=status_filtro)
+
+        logs = query.order_by(LogEmail.data_envio.desc()).all()
+
+        resultados = [{
+            'id': log.id,
+            'destinatario': log.destinatario,
+            'assunto': log.assunto,
+            'status': log.status,
+            'erro': log.erro,
+            'data_envio': log.data_envio.strftime('%Y-%m-%d %H:%M:%S')
+        } for log in logs]
+
+        return jsonify(resultados), 200
+
+    except Exception as e:
+        return jsonify({'message': f'Erro ao buscar logs de e-mails: {str(e)}'}), 500
 
 
 
