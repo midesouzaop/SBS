@@ -631,7 +631,7 @@ def upload_page():
 
 @app.route('/dashboard')
 def dashboard_page():
-    return send_from_directory('.', 'dashboard.html'
+    return send_from_directory('.', 'dashboard.html')
 
 @app.route('/api-docs')
 def api_docs():
