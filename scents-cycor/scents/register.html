@@ -143,6 +143,9 @@
     <p id="erro" class="erro"></p>
     <button class="botao" onclick="handlePagamento()">Pagar Agora</button>
   </div>
+
+  <button onclick="procurarAudio()">Procurar Áudio</button>
+
 </div>
 
 <footer>
@@ -248,6 +251,19 @@
     .catch(err => {
       erro.textContent = "Erro ao enviar dados: " + err.message;
     });
+  }
+
+  function procurarAudio() {
+    const opcaoSelecionada = document.getElementById("aroma").value;
+    
+    fetch(`/procurar_audio?nome_arquivo=${opcaoSelecionada}.mp3`)  // Supondo que o valor enviado seja o nome do arquivo
+        .then(response => response.json())
+        .then(data => {
+            console.log('Áudio encontrado:', data.caminho);
+        })
+        .catch(error => {
+            console.error('Erro ao procurar o áudio:', error);
+        });
   }
 
   carregarPlanos();
