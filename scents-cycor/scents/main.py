@@ -14,7 +14,7 @@ import re
 import requests
 from flask_mail import Mail, Message
 #import datetime
-from yourapp import app, db, mail 
+#from yourapp import app, db, mail 
 app = Flask(__name__)
 
 
