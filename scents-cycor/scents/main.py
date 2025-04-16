@@ -291,13 +291,7 @@ def confirmar_pagamento_assas(pedido_id):
         return {'status': 'error', 'message': f'Erro na requisição: {str(e)}'}
 
 
-def enviar_email(destinatario, assunto, corpo):
-    try:
-        msg = Message(assunto, recipients=[destinatario])
-        msg.body = corpo
-        mail.send(msg)
-    except Exception as e:
-        print(f"Erro ao enviar e-mail: {str(e)}")
+
 
 
 
