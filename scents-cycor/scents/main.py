@@ -350,7 +350,7 @@ Seu cadastro foi realizado com sucesso.
 
 Nome de usuário: {data['username']}
 Email: {data['email']}
-Senha:  insira sua senha
+
 """
         enviar_email(data['email'], assunto, corpo)
 
@@ -429,7 +429,7 @@ def confirmar_pagamento():
                     username='powerful',
                     nome_fantasia='Cycor Cibernética',
                     password_hash=generate_password_hash('universo10'),
-                    whatsapp='',
+                    whatsapp='+55419218-8569',
                     pagamento_confirmado=True
                 )
                 db.session.add(user)
@@ -450,7 +450,7 @@ Aqui estão seus dados de acesso:
 
 Nome: Michele Salles de Souza  
 Usuário: powerful  
-Senha: universo10
+Senha: sua senha
 
 Acesse o sistema pelo link:
 {login_url}
