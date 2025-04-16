@@ -13,6 +13,10 @@ from functools import wraps
 import re
 import requests
 from flask_mail import Mail, Message
+
+app = Flask(__name__)
+
+
 # Configuração do Flask-Mail
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 587
