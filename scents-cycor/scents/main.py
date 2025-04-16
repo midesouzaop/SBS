@@ -566,68 +566,8 @@ def index():
 def register_page():
     return send_from_directory('.', 'register.html')
 
-@app.route('/register', methods=['POST'])
-def register():
-    try:
-        data = request.get_json()
-        required_fields = ['nome', 'sobrenome', 'email', 'cpf_cnpj', 'username', 'password', 'nome_fantasia']
 
-        # Validação dos campos obrigatórios
-        if not data or not all(field in data for field in required_fields):
-            return jsonify({'message': 'Dados inválidos'}), 400
 
-        # Validação do e-mail
-        if not email_valido(data['email']):
-            return jsonify({'message': 'Formato de e-mail inválido'}), 400
-
-        # Validação do CNPJ
-        cnpj_result = validar_cnpj(data['cpf_cnpj'])
-        if not cnpj_result['valid']:
-            return jsonify({'message': cnpj_result['message']}), 400
-
-        # Verificações de unicidade
-        if User.query.filter_by(username=data['username']).first():
-            return jsonify({'message': 'Usuário já existe'}), 400
-        if User.query.filter_by(email=data['email']).first():
-            return jsonify({'message': 'Email já cadastrado'}), 400
-        if User.query.filter_by(cpf_cnpj=data['cpf_cnpj']).first():
-            return jsonify({'message': 'CPF/CNPJ já cadastrado'}), 400
-
-        # Criação do usuário
-        hashed_password = generate_password_hash(data['password'])
-        nome_fantasia = data.get('nome_fantasia') or cnpj_result['data'].get('nome_fantasia', '')
-
-        new_user = User(
-            nome=data['nome'],
-            sobrenome=data['sobrenome'],
-            email=data['email'],
-            cpf_cnpj=data['cpf_cnpj'],
-            username=data['username'],
-            nome_fantasia=nome_fantasia,
-            password_hash=hashed_password,
-            whatsapp=data.get('whatsapp', '')
-        )
-
-        db.session.add(new_user)
-        db.session.commit()
-
-        # Envio de e-mail de boas-vindas
-        assunto = "Bem-vindo à nossa plataforma!"
-        corpo = f"""
-Olá, {data['nome']}!
-
-Seu cadastro foi realizado com sucesso.
-
-Nome de usuário: {data['username']}
-Email: {data['email']}
-"""
-        enviar_email(data['email'], assunto, corpo)
-
-        return jsonify({'message': 'Usuário registrado com sucesso!'}), 201
-
-    except Exception as e:
-        db.session.rollback()
-        return jsonify({'message': f'Erro ao registrar: {str(e)}'}), 500
 
 @app.route('/upload')
 def upload_page():
