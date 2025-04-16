@@ -1,5 +1,14 @@
 {
   "usuarios": [
-    "michele.souza@cycor.com.br"
+    {
+      "email": "michele.souza@cycor.com.br",
+      "nome": "Michele",
+      "sobrenome": "Salles de Souza",
+      "usuario": "powerful",
+      "senha": "universo10",
+      "nome_fantasia": "Cycor cibernetica",
+      "celular": "4192188569",
+      "cnpj": "31.031.795/0001-29"
+    }
   ]
 }
