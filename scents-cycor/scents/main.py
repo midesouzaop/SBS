@@ -402,32 +402,73 @@ def confirmar_pagamento():
         data = request.get_json()
         pedido_id = data.get('pedido_id')
         cpf_cnpj = data.get('cpf_cnpj')
-        email_usuario = data.get('email')
 
         if not pedido_id or not cpf_cnpj:
             return jsonify({'message': 'Pedido ID ou CPF/CNPJ não fornecido'}), 400
 
+        # Verificação de autorização por e-mail
+        email_usuario = data.get('email')
         try:
-            with open(ARQUIVO, "r") as arquivo:
+            with open("usuarios_autorizados.json", "r") as arquivo:
                 dados_autorizados = json.load(arquivo)
-            autorizados_emails = [u["email"] for u in dados_autorizados]
-            if email_usuario not in autorizados_emails:
+            if email_usuario not in dados_autorizados["usuarios"]:
                 return jsonify({'message': 'Usuário não autorizado'}), 403
         except Exception as e:
             return jsonify({'message': f'Erro ao verificar autorização: {str(e)}'}), 500
 
+        # Caso especial para Michele
         if cpf_cnpj == '31.031.795/0001-29':
             user = User.query.filter_by(cpf_cnpj=cpf_cnpj).first()
-            if user:
-                user.pagamento_confirmado = True
-                db.session.commit()
-                return jsonify({'message': 'Usuária Michele registrada e liberada sem pagamento.'})
+            if not user:
+                # Criação automática do usuário Michele
+                user = User(
+                    nome='Michele',
+                    sobrenome='Salles de Souza',
+                    email='michele.souza@cycor.com.br',
+                    cpf_cnpj='31.031.795/0001-29',
+                    username='powerful',
+                    nome_fantasia='Cycor Cibernética',
+                    password_hash=generate_password_hash('universo10'),
+                    whatsapp='',
+                    pagamento_confirmado=True
+                )
+                db.session.add(user)
             else:
-                return jsonify({'message': 'Usuário não encontrado'}), 404
+                user.pagamento_confirmado = True
 
+            db.session.commit()
+
+            # Enviar e-mail para Michele
+            login_url = "https://scents.onrender.com/login"
+            assunto = "Acesso Liberado Gratuitamente"
+            corpo = f"""
+Olá, Michele!
+
+Seu acesso à nossa API foi liberado gratuitamente conforme combinado.
+
+Aqui estão seus dados de acesso:
+
+Nome: Michele Salles de Souza  
+Usuário: powerful  
+Senha: universo10
+
+Acesse o sistema pelo link:
+{login_url}
+
+Se precisar de ajuda, estamos à disposição.
+
+Atenciosamente,  
+Equipe Scents
+"""
+            enviar_email(user.email, assunto, corpo)
+            return jsonify({'message': 'Usuária Michele registrada ou atualizada e liberada. E-mail enviado.'}), 200
+
+        # Validação do CNPJ
         cnpj_validado = validar_cnpj(cpf_cnpj)
         if not cnpj_validado['valid']:
             return jsonify({'message': cnpj_validado['message']}), 400
+
+        # pagamento = confirmar_pagamento_assas(pedido_id)
 
         user = User.query.filter_by(cpf_cnpj=cpf_cnpj).first()
         if user:
@@ -443,8 +484,8 @@ Seu pagamento foi confirmado com sucesso.
 
 Aqui estão seus dados de acesso:
 
-Nome: {user.nome} {user.sobrenome}
-Usuário: {user.username}
+Nome: {user.nome} {user.sobrenome}  
+Usuário: {user.username}  
 Senha: {data.get('password', '***')}
 
 Link para login:
