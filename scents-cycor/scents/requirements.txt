@@ -12,4 +12,4 @@ numpy==1.26.4
 redis==5.0.1
 regex
 requests 
-flask_mail
+Flask-Mail
