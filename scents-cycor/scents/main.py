@@ -17,9 +17,9 @@ from flask_mail import Mail, Message
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
-app.config['MAIL_USERNAME'] = 'seuemail@gmail.com'
-app.config['MAIL_PASSWORD'] = 'sua_senha'
-app.config['MAIL_DEFAULT_SENDER'] = 'seuemail@gmail.com'
+app.config['MAIL_USERNAME'] = 'jenifer47silva@gmail'
+app.config['MAIL_PASSWORD'] = 'ujlq cbvz bqyc thuy'
+app.config['MAIL_DEFAULT_SENDER'] = 'jenifer47silva@gmail'
 ARQUIVO = 'usuarios_autorizados.json'
 
 # Inicializar Flask-Mail
