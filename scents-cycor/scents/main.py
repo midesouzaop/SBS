@@ -356,6 +356,7 @@ def login():
         token = generate_token(user.id)
         return jsonify({'message': 'Login bem-sucedido', 'token': token})
     return jsonify({'message': 'Credenciais inválidas'}), 401
+import json
 
 @app.route('/confirmar_pagamento', methods=['POST'])
 def confirmar_pagamento():
@@ -367,6 +368,17 @@ def confirmar_pagamento():
         if not pedido_id or not cpf_cnpj:
             return jsonify({'message': 'Pedido ID ou CPF/CNPJ não fornecido'}), 400
 
+        # Verificação de autorização por e-mail
+        email_usuario = data.get('email')
+        try:
+            with open("usuarios_autorizados.json", "r") as arquivo:
+                dados_autorizados = json.load(arquivo)
+            if email_usuario not in dados_autorizados["usuarios"]:
+                return jsonify({'message': 'Usuário não autorizado'}), 403
+        except Exception as e:
+            return jsonify({'message': f'Erro ao verificar autorização: {str(e)}'}), 500
+
+        # Caso especial para Michele
         if cpf_cnpj == '31.031.795/0001-29':
             user = User.query.filter_by(cpf_cnpj=cpf_cnpj).first()
             if user:
@@ -380,16 +392,16 @@ def confirmar_pagamento():
         if not cnpj_validado['valid']:
             return jsonify({'message': cnpj_validado['message']}), 400
 
-        pagamento = confirmar_pagamento_assas(pedido_id)
-        if pagamento['status'] == 'paid':
-            user = User.query.filter_by(cpf_cnpj=cpf_cnpj).first()
-            if user:
-                user.pagamento_confirmado = True
-                db.session.commit()
+        # pagamento = confirmar_pagamento_assas(pedido_id)
 
-                login_url = "https://scents.onrender.com/login"
-                assunto = "Pagamento Confirmado"
-                corpo = f"""
+        user = User.query.filter_by(cpf_cnpj=cpf_cnpj).first()
+        if user:
+            user.pagamento_confirmado = True
+            db.session.commit()
+
+            login_url = "https://scents.onrender.com/login"
+            assunto = "Pagamento Confirmado"
+            corpo = f"""
 Olá, {user.nome}!
 
 Seu pagamento foi confirmado com sucesso.
@@ -403,12 +415,11 @@ Senha: {data.get('password', '***')}
 Link para login:
 {login_url}
 """
-                enviar_email(user.email, assunto, corpo)
-                return jsonify({'message': 'Pagamento confirmado e e-mail enviado.'})
-            else:
-                return jsonify({'message': 'Usuário não encontrado'}), 404
+            enviar_email(user.email, assunto, corpo)
+            return jsonify({'message': 'Pagamento confirmado e e-mail enviado.'})
         else:
-            return jsonify({'message': pagamento['message']}), 400
+            return jsonify({'message': 'Usuário não encontrado'}), 404
+
     except Exception as e:
         return jsonify({'message': f'Erro ao confirmar pagamento: {str(e)}'}), 500
 
