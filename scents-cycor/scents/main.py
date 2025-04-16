@@ -29,7 +29,7 @@ ARQUIVO = 'usuarios_autorizados.json'
 # Inicializar Flask-Mail
 mail = Mail(app)
 
-app = Flask(__name__)
+#app = Flask(__name__)
 
 # Criar pasta de uploads
 UPLOAD_FOLDER = 'uploads'
