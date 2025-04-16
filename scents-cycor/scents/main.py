@@ -333,6 +333,7 @@ def listar_emails_enviados():
 
 
 
+
 def confirmar_pagamento_assas(pedido_id):
     url = f'https://api.assas.com.br/v1/pedidos/{pedido_id}/status'
     headers = {'Authorization': 'Bearer SEU_TOKEN_AQUI'}
