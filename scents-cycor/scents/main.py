@@ -262,11 +262,14 @@ def validar_cnpj(cnpj):
         return {'valid': False, 'message': f'Erro na requisição: {str(e)}'}
 
 
+# ======= FUNÇÃO PARA ENVIO DE EMAIL =======
 def enviar_email(destinatario, assunto, corpo):
     try:
-        msg = Message(assunto, recipients=[destinatario])
-        msg.body = corpo
-        mail.send(msg)
+        with app.app_context():
+            msg = Message(assunto, recipients=[destinatario])
+            msg.body = corpo
+            mail.send(msg)
+            print("E-mail enviado com sucesso!")
     except Exception as e:
         print(f"Erro ao enviar e-mail: {str(e)}")
 
