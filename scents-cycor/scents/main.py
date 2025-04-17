@@ -276,40 +276,37 @@ def validar_cnpj(cnpj):
 
 
 
+
 def enviar_email(destinatario, assunto, corpo):
     try:
-        smtp_host = os.getenv("SMTP_HOST", "smtp.smtp2go.com")
-        smtp_port = int(os.getenv("SMTP_PORT", 2525))
-        smtp_user = os.getenv("SMTP_USERNAME")
-        smtp_pass = os.getenv("SMTP_PASSWORD")
-        email_from = os.getenv("EMAIL_FROM")
+        smtp_host = os.getenv('SMTP_HOST')
+        smtp_port = int(os.getenv('SMTP_PORT'))
+        smtp_username = os.getenv('SMTP_USERNAME')
+        smtp_password = os.getenv('SMTP_PASSWORD')
+        email_from = os.getenv('EMAIL_FROM')
 
         msg = MIMEMultipart()
-        msg["From"] = email_from
-        msg["To"] = destinatario
-        msg["Subject"] = assunto
-        msg.attach(MIMEText(corpo, "plain"))
+        msg['From'] = email_from
+        msg['To'] = destinatario
+        msg['Subject'] = assunto
+        msg.attach(MIMEText(corpo, 'plain'))
 
         with smtplib.SMTP(smtp_host, smtp_port) as server:
             server.starttls()
-            server.login(smtp_user, smtp_pass)
+            server.login(smtp_username, smtp_password)
             server.send_message(msg)
 
-        with open("envio_emails.log", "a") as log_file:
-            log_file.write(f"[{datetime.datetime.now()}] E-mail enviado para {destinatario} | Assunto: {assunto}\n")
-
-        log = LogEmail(destinatario=destinatario, assunto=assunto, status="Sucesso")
+        log = LogEmail(destinatario=destinatario, assunto=assunto, status="Sucesso", erro=None)
         db.session.add(log)
         db.session.commit()
+        print(f"E-mail enviado com sucesso para {destinatario}")
 
     except Exception as e:
         erro = str(e)
-        with open("envio_emails.log", "a") as log_file:
-            log_file.write(f"[{datetime.datetime.now()}] ERRO ao enviar e-mail para {destinatario} | Erro: {erro}\n")
-
         log = LogEmail(destinatario=destinatario, assunto=assunto, status="Erro", erro=erro)
         db.session.add(log)
         db.session.commit()
+        print(f"Erro ao enviar e-mail: {erro}")
 @app.route('/emails_enviados', methods=['GET'])
 def listar_emails_enviados():
     try:
