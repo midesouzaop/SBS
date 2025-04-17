@@ -15,16 +15,18 @@ import requests
 from flask_mail import Mail, Message
 #import datetime
 #from yourapp import app, db, mail 
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+#import os
 app = Flask(__name__)
 
 
-# Configuração do Flask-Mail
-app.config['MAIL_SERVER'] = 'smtp.gmail.com'
-app.config['MAIL_PORT'] = 587
-app.config['MAIL_USE_TLS'] = True
-app.config['MAIL_USERNAME'] = 'jenifer47silva@gmail.com'
-app.config['MAIL_PASSWORD'] = 'ujlq cbvz bqyc thuy'
-app.config['MAIL_DEFAULT_SENDER'] = 'jenifer47silva@gmail.com'
+SMTP_HOST=smtp.smtp2go.com
+SMTP_PORT=2525
+SMTP_USERNAME="cycor.com.br"
+SMTP_PASSWORD="xiXeIAK35MAuWebT"
+EMAIL_FROM="Scents API <michele.souza@cycor.com.br>"
 ARQUIVO = 'usuarios_autorizados.json'
 
 # Inicializar Flask-Mail
@@ -271,31 +273,33 @@ def validar_cnpj(cnpj):
 
 def enviar_email(destinatario, assunto, corpo):
     try:
-        msg = Message(assunto, recipients=[destinatario])
-        msg.body = corpo
-        mail.send(msg)
+        smtp_host = os.getenv('SMTP_HOST')
+        smtp_port = int(os.getenv('SMTP_PORT'))
+        smtp_username = os.getenv('SMTP_USERNAME')
+        smtp_password = os.getenv('SMTP_PASSWORD')
+        email_from = os.getenv('EMAIL_FROM')
 
-        # Log no arquivo
-        with open("envio_emails.log", "a") as log_file:
-            log_file.write(f"[{datetime.datetime.now()}] E-mail enviado para {destinatario} | Assunto: {assunto}\n")
+        msg = MIMEMultipart()
+        msg['From'] = email_from
+        msg['To'] = destinatario
+        msg['Subject'] = assunto
+        msg.attach(MIMEText(corpo, 'plain'))
 
-        # Log no banco
-        log = LogEmail(destinatario=destinatario, assunto=assunto, status="Sucesso")
+        with smtplib.SMTP(smtp_host, smtp_port) as server:
+            server.starttls()
+            server.login(smtp_username, smtp_password)
+            server.send_message(msg)
+
+        log = LogEmail(destinatario=destinatario, assunto=assunto, status="Sucesso", erro=None)
         db.session.add(log)
         db.session.commit()
-
         print(f"E-mail enviado com sucesso para {destinatario}")
 
     except Exception as e:
         erro = str(e)
-
-        with open("envio_emails.log", "a") as log_file:
-            log_file.write(f"[{datetime.datetime.now()}] ERRO ao enviar e-mail para {destinatario} | Erro: {erro}\n")
-
         log = LogEmail(destinatario=destinatario, assunto=assunto, status="Erro", erro=erro)
         db.session.add(log)
         db.session.commit()
-
         print(f"Erro ao enviar e-mail: {erro}")
 @app.route('/emails_enviados', methods=['GET'])
 def listar_emails_enviados():
