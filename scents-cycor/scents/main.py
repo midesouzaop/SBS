@@ -30,7 +30,7 @@ EMAIL_FROM="Scents API <michele.souza@cycor.com.br>"
 ARQUIVO = 'usuarios_autorizados.json'
 
 # Inicializar Flask-Mail
-mail = Mail(app)
+#mail = Mail(app)
 
 #app = Flask(__name__)
 
