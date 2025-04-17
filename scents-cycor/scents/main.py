@@ -23,8 +23,7 @@ from email.mime.multipart import MIMEMultipart
 
 
 
-from main import db  # Referência ao seu app "main"
-from main.models import LogEmail  # Ajuste conforme necessário
+
 app = Flask(__name__)
 
 
