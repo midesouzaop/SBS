@@ -13,5 +13,5 @@ redis==5.0.1
 regex
 requests 
 Flask-Mail
-smtplib
-email
+smtplib  # Biblioteca padrão, não precisa instalar
+email    # Parte da biblioteca padrão, não precisa instalar
