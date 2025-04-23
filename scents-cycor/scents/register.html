@@ -1,281 +1,177 @@
-<!DOCTYPE html>  
-<html lang="pt-BR">  
-<head>  
-  <meta charset="UTF-8" />  
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>  
-  <title>Planos de Pagamento</title>  
-  <style>  
-    body {  
-      font-family: Arial, sans-serif;  
-      background-color: #f4f4f4;  
-      margin: 0;  
-      padding: 20px;  
-      display: flex;  
-      flex-direction: column;  
-      align-items: center;  
-      min-height: 100vh;  
-    }  
-  
-    .login-link {  
-      text-align: center;  
-      margin-bottom: 20px;  
-    }  
-  
-    .container {  
-      background: white;  
-      padding: 20px;  
-      border-radius: 10px;  
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);  
-      max-width: 400px;  
-      width: 100%;  
-    }  
-  
-    h2 {  
-      text-align: center;  
-    }  
-  
-    .plano {  
-      display: block;  
-      width: 100%;  
-      padding: 10px;  
-      margin: 5px 0;  
-      border: 2px solid #ccc;  
-      border-radius: 5px;  
-      text-align: left;  
-      cursor: pointer;  
-      background-color: white;  
-    }  
-  
-    .plano.selecionado {  
-      border-color: blue;  
-      background-color: #e0f0ff;  
-    }  
-  
-    .input-container {  
-      margin-top: 10px;  
-    }  
-  
-    input, select {  
-      width: 100%;  
-      padding: 8px;  
-      margin-top: 5px;  
-      border: 1px solid #ccc;  
-      border-radius: 5px;  
-    }  
-  
-    .erro {  
-      color: red;  
-      font-size: 14px;  
-      margin-top: 5px;  
-    }  
-  
-    .botao {  
-      width: 100%;  
-      background-color: blue;  
-      color: white;  
-      padding: 10px;  
-      margin-top: 10px;  
-      border: none;  
-      border-radius: 5px;  
-      cursor: pointer;  
-    }  
-  
-    .botao:hover {  
-      background-color: darkblue;  
-    }  
-  
-    footer {  
-      margin-top: 30px;  
-      text-align: center;  
-      font-size: 12px;  
-      color: #666;  
-      max-width: 400px;  
-    }  
-  </style>  
-</head>  
-<body>  
-  
-<div class="login-link">  
-  Já tem uma conta? <a href="/login">Clique aqui para fazer login</a>  
-</div>  
-  
-<div class="container">  
-  <h2>Escolha seu plano</h2>  
-  
-  <div id="planos"></div>  
-  
-  <div id="formPagamento" style="display: none;">  
-    <div class="input-container">  
-      <label for="nomeUsuario">Nome de Usuário:</label>  
-      <input type="text" id="nomeUsuario" placeholder="Digite seu nome de usuário">  
-    </div>  
-    <div class="input-container">  
-      <label for="email">Email:</label>  
-      <input type="email" id="email" placeholder="Digite seu email">  
-    </div>  
-    <div class="input-container">  
-      <label for="senha">Senha:</label>  
-      <input type="password" id="senha" placeholder="Digite sua senha">  
-    </div>  
-    <div class="input-container">  
-      <label for="nome">Nome:</label>  
-      <input type="text" id="nome" placeholder="Digite seu nome">  
-    </div>  
-    <div class="input-container">  
-      <label for="sobrenome">Sobrenome:</label>  
-      <input type="text" id="sobrenome" placeholder="Digite seu sobrenome">  
-    </div>  
-    <div class="input-container">  
-      <label for="razaoSocial">Razão Social:</label>  
-      <input type="text" id="razaoSocial" placeholder="Digite a razão social">  
-    </div>  
-    <div class="input-container">  
-      <label for="cnpj">CNPJ:</label>  
-      <input type="text" id="cnpj" placeholder="Digite seu CNPJ">  
-    </div>  
-    <div class="input-container">  
-      <label for="whatsapp">WhatsApp:</label>  
-      <input type="text" id="whatsapp" placeholder="(00) 00000-0000">  
-    </div>  
-    <div class="input-container">  
-      <label for="aroma">Escolha o aroma:</label>  
-      <select id="aroma">  
-        <option value="cafe">Café</option>  
-      </select>  
-    </div>  
-  
-    <p id="erro" class="erro"></p>  
-    <button class="botao" onclick="handlePagamento()">Pagar Agora</button>  
-  </div>  
-  
-  <button onclick="procurarAudio()">Procurar Áudio</button>  
-  
-</div>  
-  
-<footer>  
-  © 2025 Cycor Cibernética™<br>  
-  Esta API e seu conteúdo são protegidos por direitos autorais. Todos os direitos reservados.<br>  
-  Uso não autorizado é proibido.<br>  
-  <a href="mailto:contato@cycor.com.br">contato@cycor.com.br</a>  
-</footer>  
-  
-<script>  
-  const planos = [  
-    { nome: "Plano Experiência", preco: 2500, anuncios: 10, link: "https://www.asaas.com/c/cz6v5jokf25hefqa" },  
-    { nome: "Plano Básico", preco: 5500, anuncios: 30, link: "https://www.asaas.com/c/pqvt4eey8kp3payi" },  
-    { nome: "Plano MKT Profissional", preco: 9500, anuncios: 50, link: "https://www.asaas.com/c/lifkclg6htamx2yu" }  
-  ];  
-  
-  const cnaesBloqueados = ["6319400", "7319001", "7312702", "9001901", "9001902", "9001904"];  
-  let planoSelecionado = null;  
-  
-  function carregarPlanos() {  
-    const planosContainer = document.getElementById("planos");  
-    planos.forEach((plano, index) => {  
-      const btn = document.createElement("button");  
-      btn.classList.add("plano");  
-      btn.innerHTML = `<strong>${plano.nome}</strong> - R$ ${plano.preco.toLocaleString("pt-BR")} / mês <br> ${plano.anuncios} anúncios mensais`;  
-      btn.onclick = () => selecionarPlano(index);  
-      planosContainer.appendChild(btn);  
-    });  
-  }  
-  
-  function selecionarPlano(index) {  
-    planoSelecionado = planos[index];  
-    document.querySelectorAll(".plano").forEach((btn, i) => {  
-      btn.classList.toggle("selecionado", i === index);  
-    });  
-    document.getElementById("formPagamento").style.display = "block";  
-  }  
-  
-  function validarCNPJ(cnpj) {  
-    return cnpj.replace(/\D/g, "").length === 14;  
-  }  
-  
-  function consultarCNAEporCNPJ(cnpj) {  
-    const cnpjLimpo = cnpj.replace(/\D/g, "");  
-    const ultimosDigitos = parseInt(cnpjLimpo.slice(-4));  
-    if (ultimosDigitos % 5 === 0) return "7319001";  
-    if (ultimosDigitos % 3 === 0) return "1052000";  
-    return "4637101";  
-  }  
-  
-  function handlePagamento() {  
-    const nomeUsuario = document.getElementById("nomeUsuario").value.trim();  
-    const email = document.getElementById("email").value.trim();  
-    const senha = document.getElementById("senha").value.trim();  
-    const nome = document.getElementById("nome").value.trim();  
-    const sobrenome = document.getElementById("sobrenome").value.trim();  
-    const razaoSocial = document.getElementById("razaoSocial").value.trim();  
-    const cnpj = document.getElementById("cnpj").value.trim();  
-    const whatsapp = document.getElementById("whatsapp").value.trim();  
-    const aroma = document.getElementById("aroma").value;  
-    const erro = document.getElementById("erro");  
-    erro.textContent = "";  
-  
-    if (!nomeUsuario || !email || !senha || !nome || !sobrenome || !razaoSocial || !whatsapp) {  
-      erro.textContent = "Por favor, preencha todos os campos obrigatórios.";  
-      return;  
-    }  
-  
-    if (!validarCNPJ(cnpj)) {  
-      erro.textContent = "CNPJ inválido. Verifique e tente novamente.";  
-      return;  
-    }  
-  
-    const cnae = consultarCNAEporCNPJ(cnpj);  
-    if (cnaesBloqueados.includes(cnae)) {  
-      erro.textContent = "Este CNPJ pertence a uma atividade não autorizada para uso da tecnologia.";  
-      return;  
-    }  
-  
-    fetch("/api/autorizados", {  
-      method: "POST",  
-      headers: {  
-        "Content-Type": "application/json"  
-      },  
-      body: JSON.stringify({  
-        nomeUsuario,  
-        email,  
-        senha,  
-        nome,  
-        sobrenome,  
-        razaoSocial,  
-        cnpj,  
-        aroma,  
-        whatsapp  
-      })  
-    })  
-    .then(res => {  
-      if (!res.ok) throw new Error("Erro ao salvar dados.");  
-      return res.json();  
-    })  
-    .then(data => {  
-      alert(data.mensagem);  
-      window.location.href = planoSelecionado.link;  
-    })  
-    .catch(err => {  
-      erro.textContent = "Erro ao enviar dados: " + err.message;  
-    });  
-  }  
-  
-  function procurarAudio() {  
-    const aroma = document.getElementById("aroma").value;  
-    fetch(`/procurar_audio?nome_arquivo=${encodeURIComponent(aroma)}.mp3`)  
-      .then(response => {  
-        if (!response.ok) throw new Error("Áudio não encontrado.");  
-        return response.json();  
-      })  
-      .then(data => {  
-        alert(`Áudio encontrado: ${data.nome_arquivo}`);  
-      })  
-      .catch(err => {  
-        alert("Erro ao procurar áudio: " + err.message);  
-      });  
-  }  
-  
-  window.onload = carregarPlanos;  
-</script>  
-  
-</body>  
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Cadastro</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f0f0f0;
+      padding: 20px;
+    }
+    .form-container {
+      background: white;
+      padding: 25px;
+      border-radius: 10px;
+      max-width: 600px;
+      margin: auto;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    label {
+      display: block;
+      margin-top: 15px;
+    }
+    input, select, button {
+      width: 100%;
+      padding: 8px;
+      margin-top: 5px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+    .error {
+      color: red;
+      margin-top: 10px;
+    }
+    .login-link {
+      margin-top: 20px;
+      text-align: center;
+    }
+    .login-link a {
+      text-decoration: none;
+      color: #333;
+    }
+  </style>
+</head>
+<body>
+  <div class="form-container">
+    <h2>Cadastro</h2>
+    <form id="cadastroForm">
+      <label>Nome:</label>
+      <input type="text" id="nome" required>
+
+      <label>Sobrenome:</label>
+      <input type="text" id="sobrenome" required>
+
+      <label>Nome Empresarial:</label>
+      <input type="text" id="nomeEmpresarial" required>
+
+      <label>Email:</label>
+      <input type="email" id="email" required>
+
+      <label>CPF ou CNPJ:</label>
+      <input type="text" id="cpfCnpj" required>
+
+      <label>WhatsApp:</label>
+      <input type="text" id="whatsapp" required>
+
+      <label>Nome de Usuário:</label>
+      <input type="text" id="username" required>
+
+      <label>Senha:</label>
+      <input type="password" id="senha" required>
+
+      <label>Aroma:</label>
+      <select id="aroma" required>
+        <option value="">Selecione</option>
+        <option value="café">Café</option>
+      </select>
+
+      <label>Plano:</label>
+      <select id="plano" required>
+        <option value="">Selecione um plano</option>
+        <option value="0">Plano Experiência - R$ 2.500 (10 anúncios)</option>
+        <option value="1">Plano Básico - R$ 5.500 (30 anúncios)</option>
+        <option value="2">Plano MKT Profissional - R$ 9.500 (50 anúncios)</option>
+      </select>
+
+      <div class="error" id="erro"></div>
+      <button type="submit">Cadastrar</button>
+    </form>
+
+    <div class="login-link">
+      <p>Já tem conta? <a href="/login">Clique aqui para fazer login</a></p>
+    </div>
+  </div>
+
+  <script>
+    const planos = [
+      { nome: "Plano Experiência", preco: 2500, anuncios: 10, link: "https://www.asaas.com/c/cz6v5jokf25hefqa" },
+      { nome: "Plano Básico", preco: 5500, anuncios: 30, link: "https://www.asaas.com/c/pqvt4eey8kp3payi" },
+      { nome: "Plano MKT Profissional", preco: 9500, anuncios: 50, link: "https://www.asaas.com/c/lifkclg6htamx2yu" }
+    ];
+
+    const cnaesBloqueados = ["6319400", "7319001", "7312702", "9001901", "9001902", "9001904"];
+
+    document.getElementById("cadastroForm").addEventListener("submit", async function(e) {
+      e.preventDefault();
+
+      const nome = document.getElementById("nome").value.trim();
+      const sobrenome = document.getElementById("sobrenome").value.trim();
+      const nomeEmpresarial = document.getElementById("nomeEmpresarial").value.trim();
+      const email = document.getElementById("email").value.trim();
+      const cpfCnpj = document.getElementById("cpfCnpj").value.trim();
+      const whatsapp = document.getElementById("whatsapp").value.trim();
+      const username = document.getElementById("username").value.trim();
+      const senha = document.getElementById("senha").value.trim();
+      const aroma = document.getElementById("aroma").value;
+      const planoIndex = document.getElementById("plano").value;
+      const erro = document.getElementById("erro");
+
+      if (!nome || !sobrenome || !nomeEmpresarial || !email || !cpfCnpj || !whatsapp || !username || !senha || !aroma || planoIndex === "") {
+        erro.textContent = "Preencha todos os campos.";
+        return;
+      }
+
+      // Verificação de CNPJ
+      const validar = await fetch('/validar-cnpj', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ cnpj: cpfCnpj })
+      });
+
+      const resposta = await validar.json();
+
+      if (!resposta.valid) {
+        erro.textContent = resposta.message;
+        return;
+      }
+
+      const cnaePrincipal = resposta.data.cnae_fiscal?.toString() || "";
+
+      if (cnaesBloqueados.includes(cnaePrincipal)) {
+        erro.textContent = "Cadastro não permitido para esse tipo de empresa (CNAE bloqueado).";
+        return;
+      }
+
+      const selectedPlano = planos[planoIndex];
+
+      const dados = {
+        nome,
+        sobrenome,
+        email,
+        cpf_cnpj: cpfCnpj,
+        whatsapp,
+        username,
+        password: senha,
+        nome_fantasia: nomeEmpresarial,
+        aroma
+      };
+
+      const res = await fetch('/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(dados)
+      });
+
+      const resultado = await res.json();
+
+      if (res.ok) {
+        alert("Cadastro realizado com sucesso. Dados salvos.");
+        window.location.href = selectedPlano.link;
+      } else {
+        erro.textContent = resultado.message || "Erro ao cadastrar.";
+      }
+    });
+  </script>
+</body>
 </html>
