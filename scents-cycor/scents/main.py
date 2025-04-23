@@ -257,27 +257,30 @@ def email_valido(email):
     return re.match(regex, email) is not None
 
 
-@app.route('/validar-cnpj', methods=['POST'])
-def validar_cnpj():
-    data = request.get_json()
-    cnpj = data.get('cnpj')
+def validar_cnpj(cnpj):
     cnpj = re.sub(r'\D', '', cnpj)
 
     if not cnpj or len(cnpj) != 14:
-        return jsonify({'valid': False, 'message': 'CNPJ inválido'})
+        return {'valid': False, 'message': 'CNPJ inválido'}
 
     url = f'https://brasilapi.com.br/api/cnpj/v1/{cnpj}'
     try:
         response = requests.get(url)
         if response.status_code == 200:
             data = response.json()
-            return jsonify({'valid': True, 'message': 'CNPJ válido', 'data': data})
+            return {'valid': True, 'message': 'CNPJ válido', 'data': data}
         elif response.status_code == 404:
-            return jsonify({'valid': False, 'message': 'CNPJ não encontrado'})
+            return {'valid': False, 'message': 'CNPJ não encontrado'}
         else:
-            return jsonify({'valid': False, 'message': f'Erro BrasilAPI: {response.status_code}'})
+            return {'valid': False, 'message': f'Erro BrasilAPI: {response.status_code}'}
     except requests.exceptions.RequestException as e:
-        return jsonify({'valid': False, 'message': f'Erro na requisição: {str(e)}'})
+        return {'valid': False, 'message': f'Erro na requisição: {str(e)}'}
+@app.route('/validar-cnpj', methods=['POST'])
+def validar_cnpj_route():
+    data = request.get_json()
+    cnpj = data.get('cnpj')
+    result = validar_cnpj(cnpj)
+    return jsonify(result)
 
 
 
@@ -382,6 +385,7 @@ def register():
         if not email_valido(data['email']):
             return jsonify({'message': 'Formato de e-mail inválido'}), 400
 
+        # Chamada correta à função auxiliar
         cnpj_result = validar_cnpj(data['cpf_cnpj'])
         if not cnpj_result['valid']:
             return jsonify({'message': cnpj_result['message']}), 400
@@ -418,8 +422,8 @@ Seu cadastro foi realizado com sucesso.
 
 Nome de usuário: {data['username']}
 Email: {data['email']}
-
 """
+
         enviar_email(data['email'], assunto, corpo)
 
         return jsonify({'message': 'Usuário registrado com sucesso!'})
@@ -698,3 +702,6 @@ def upload_file(current_user):
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=False)
+
+
+
