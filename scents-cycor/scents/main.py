@@ -196,7 +196,15 @@ def generate_video(current_user):
             print(f"[ERRO REDIS] {redis_error}")  # Pode logar no Sentry, Rollbar, etc.
             # Continua o fluxo mesmo se o Redis falhar
 
-        audio_file = os.path.join('scents-cycor/scents/uploads', 'audio_A5CBR.mp3')
+        # Caminho absoluto para o arquivo de áudio
+        audio_file = os.path.abspath('scents-cycor/scents/uploads/audio_A5CBR.mp3')
+
+        # Verifica se o arquivo de áudio existe
+        if not os.path.isfile(audio_file):
+            print(f"[ERRO] Áudio não encontrado: {audio_file}")
+            return jsonify({'message': 'Arquivo de áudio não encontrado'}), 400
+
+        # Pega a última imagem gerada
         last_image = GeneratedFile.query.filter_by(user_id=user_id).order_by(GeneratedFile.timestamp.desc()).first()
 
         if not last_image:
@@ -204,10 +212,7 @@ def generate_video(current_user):
 
         image_path = os.path.join(app.config['UPLOAD_FOLDER'], last_image.filename)
 
-        if not os.path.exists(audio_file):
-            print(f"[ERRO] Áudio não encontrado: {audio_file}")
-            return jsonify({'message': 'Arquivo de áudio não encontrado'}), 400
-
+        # Verifica se a imagem existe
         if not os.path.exists(image_path):
             print(f"[ERRO] Imagem não encontrada: {image_path}")
             return jsonify({'message': 'Arquivo de imagem não encontrado'}), 400
@@ -215,22 +220,22 @@ def generate_video(current_user):
         output_filename = f'video_{uuid.uuid4().hex}.mp4'
         output_path = os.path.join(app.config['UPLOAD_FOLDER'], output_filename)
 
+        # Tenta gerar o vídeo com áudio
         success = generate_video_with_audio(image_path, audio_file, output_path)
 
         if not success:
             return jsonify({'message': 'Erro ao gerar vídeo'}), 500
 
+        # Salva o vídeo gerado no banco de dados
         new_video = GeneratedFile(filename=output_filename, user_id=user_id)
         db.session.add(new_video)
         db.session.commit()
 
         return jsonify({'message': 'Vídeo gerado com sucesso', 'video_url': f'/video/{output_filename}'})
-
     except Exception as e:
-        import traceback
-        print(f"[EXCEÇÃO GERAL] {e}")
-        traceback.print_exc()
-        return jsonify({'message':'Erro interno ao gerar vídeo', 'error': 500})
+        print(f"[ERRO GERAL] {e}")
+        return jsonify({'message': 'Erro interno no servidor'}), 500
+
 
 
 
