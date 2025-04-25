@@ -71,7 +71,7 @@ class LogEmail(db.Model):
     assunto = db.Column(db.String(200), nullable=False)
     status = db.Column(db.String(20), nullable=False)
     erro = db.Column(db.Text, nullable=True)
-    data_envio = db.Column(db.DateTime, default=datetime.utcnow)
+    data_envio = db.Column(db.DateTime, default=datetime.datetime.utcnow)
 with app.app_context():
     db.drop_all()
     db.create_all()
