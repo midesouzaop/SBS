@@ -240,10 +240,10 @@ def generate_video(current_user):
         db.session.add(new_video)
         db.session.commit()
 
-        return jsonify({'message': 'Vídeo gerado com sucesso', 'video_url': f'/video/{output_filename}'})
+        return jsonify({'message': 'Vídeo gerado com sucesso', 'video_url': f'/video/{output_filename}'}), 200
     except Exception as e:
         print(f"[ERRO GERAL] {e}")
-        return jsonify({'message': 'Erro interno no servidor'}), 500
+        return jsonify({'message': 'Erro interno no servidor', 'error': str(e)}), 500
 
 
 
