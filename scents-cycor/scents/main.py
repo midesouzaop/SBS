@@ -175,13 +175,14 @@ def check_usage(current_user):
     })
 
 import os
+import os
 
-def find_file_in_directory(directory, filename):
+def find_file_anywhere(filename):
     """
-    Procura um arquivo em um diretório e retorna o caminho completo do arquivo se encontrado.
-    Caso contrário, retorna None.
+    Procura um arquivo em qualquer pasta do sistema e retorna o caminho completo
+    do arquivo se encontrado. Caso contrário, retorna None.
     """
-    for root, dirs, files in os.walk(directory):
+    for root, dirs, files in os.walk('/'):  # A partir da raiz do sistema
         if filename in files:
             return os.path.join(root, filename)
     return None
@@ -205,15 +206,11 @@ def generate_video(current_user):
             print(f"[ERRO REDIS] {redis_error}")  # Pode logar no Sentry, Rollbar, etc.
             # Continua o fluxo mesmo se o Redis falhar
 
-        # Caminho do diretório onde o arquivo de áudio deve estar
-        audio_directory = 'scents-cycor/scents/uploads'
-        audio_filename = 'audio_A5CBR.mp3'
-
-        # Procura o arquivo de áudio no diretório
-        audio_file = find_file_in_directory(audio_directory, audio_filename)
+        # Procurar o arquivo de áudio 'audio_A5CBR.mp3' em qualquer pasta
+        audio_file = find_file_anywhere('audio_A5CBR.mp3')
 
         if not audio_file:
-            print(f"[ERRO] Áudio não encontrado no diretório {audio_directory}")
+            print("[ERRO] Áudio não encontrado em qualquer diretório.")
             return jsonify({'message': 'Arquivo de áudio não encontrado'}), 400
 
         # Pega a última imagem gerada
