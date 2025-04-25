@@ -174,8 +174,17 @@ def check_usage(current_user):
         'message': 'Uso verificado com sucesso'
     })
 
-#@limiter.limit("5 per minute")
-#@token_required
+import os
+
+def find_file_in_directory(directory, filename):
+    """
+    Procura um arquivo em um diretório e retorna o caminho completo do arquivo se encontrado.
+    Caso contrário, retorna None.
+    """
+    for root, dirs, files in os.walk(directory):
+        if filename in files:
+            return os.path.join(root, filename)
+    return None
 @app.route('/generate_video', methods=['POST'])
 @limiter.limit("5 per minute")
 @token_required
@@ -196,12 +205,15 @@ def generate_video(current_user):
             print(f"[ERRO REDIS] {redis_error}")  # Pode logar no Sentry, Rollbar, etc.
             # Continua o fluxo mesmo se o Redis falhar
 
-        # Caminho absoluto para o arquivo de áudio
-        audio_file = os.path.abspath('scents-cycor/scents/uploads/audio_A5CBR.mp3')
+        # Caminho do diretório onde o arquivo de áudio deve estar
+        audio_directory = 'scents-cycor/scents/uploads'
+        audio_filename = 'audio_A5CBR.mp3'
 
-        # Verifica se o arquivo de áudio existe
-        if not os.path.isfile(audio_file):
-            print(f"[ERRO] Áudio não encontrado: {audio_file}")
+        # Procura o arquivo de áudio no diretório
+        audio_file = find_file_in_directory(audio_directory, audio_filename)
+
+        if not audio_file:
+            print(f"[ERRO] Áudio não encontrado no diretório {audio_directory}")
             return jsonify({'message': 'Arquivo de áudio não encontrado'}), 400
 
         # Pega a última imagem gerada
