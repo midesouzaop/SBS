@@ -188,7 +188,64 @@ def find_file_anywhere(filename):
     return None
 
 
+@app.route('/generate_video', methods=['POST'])
+@limiter.limit("5 per minute")
+@token_required
+def generate_video(current_user):
+    user_id = current_user.id
+    key = f"user:{user_id}:requests"
 
+    try:
+        # Checagem de limite com Redis
+        try:
+            requests_made = redis_client.get(key)
+            if requests_made and int(requests_made.decode()) >= 5:
+                return jsonify({'message': 'Limite de requisições por minuto atingido'}), 429
+
+            redis_client.incr(key)
+            redis_client.expire(key, 60)
+        except Exception as redis_error:
+            print(f"[ERRO REDIS] {redis_error}")  # Pode logar no Sentry, Rollbar, etc.
+            # Continua o fluxo mesmo se o Redis falhar
+
+        # Procurar o arquivo de áudio 'audio_A5CBR.mp3' em qualquer pasta
+        audio_file = find_file_anywhere('audio_A5CBR.mp3')
+
+        if not audio_file:
+            print("[ERRO] Áudio não encontrado em qualquer diretório.")
+            return jsonify({'message': 'Arquivo de áudio não encontrado'}), 400
+
+        # Pega a última imagem gerada
+        last_image = GeneratedFile.query.filter_by(user_id=user_id).order_by(GeneratedFile.timestamp.desc()).first()
+
+        if not last_image:
+            return jsonify({'message': 'Nenhuma imagem encontrada'}), 400
+
+        image_path = os.path.join(app.config['UPLOAD_FOLDER'], last_image.filename)
+
+        # Verifica se a imagem existe
+        if not os.path.exists(image_path):
+            print(f"[ERRO] Imagem não encontrada: {image_path}")
+            return jsonify({'message': 'Arquivo de imagem não encontrado'}), 400
+
+        output_filename = f'video_{uuid.uuid4().hex}.mp4'
+        output_path = os.path.join(app.config['UPLOAD_FOLDER'], output_filename)
+
+        # Tenta gerar o vídeo com áudio
+        success = generate_video_with_audio(image_path, audio_file, output_path)
+
+        if not success:
+            return jsonify({'message': 'Erro ao gerar vídeo'}), 500
+
+        # Salva o vídeo gerado no banco de dados
+        new_video = GeneratedFile(filename=output_filename, user_id=user_id)
+        db.session.add(new_video)
+        db.session.commit()
+
+        return jsonify({'message': 'Vídeo gerado com sucesso', 'video_url': f'/video/{output_filename}'}), 200
+    except Exception as e:
+        print(f"[ERRO GERAL] {e}")
+        return jsonify({'message': 'Erro interno no servidor', 'error': str(e)}), 500
 
 
 #import os
