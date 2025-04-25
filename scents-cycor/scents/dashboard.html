@@ -122,6 +122,11 @@
                     }
                 });
 
+                // Verifique se a resposta é válida
+                if (!response.ok) {
+                    throw new Error(`Erro HTTP: ${response.status} - ${response.statusText}`);
+                }
+
                 const responseText = await response.text(); // Captura a resposta como texto
                 console.log("Resposta da API:", responseText); // Exibe a resposta no console para debug
 
@@ -132,10 +137,7 @@
                     throw new Error("Resposta da API não é um JSON válido.");
                 }
 
-                if (!response.ok) {
-                    throw new Error(result.message || 'Erro ao gerar vídeo');
-                }
-
+                // Checar se o campo video_url existe
                 if (!result.video_url) {
                     throw new Error("A resposta não contém a URL do vídeo.");
                 }
