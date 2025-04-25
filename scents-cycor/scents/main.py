@@ -63,7 +63,15 @@ class GeneratedFile(db.Model):
     filename = db.Column(db.String(120), nullable=False)
     timestamp = db.Column(db.DateTime, default=datetime.datetime.utcnow)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+from datetime import datetime
 
+class LogEmail(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    destinatario = db.Column(db.String(120), nullable=False)
+    assunto = db.Column(db.String(200), nullable=False)
+    status = db.Column(db.String(20), nullable=False)
+    erro = db.Column(db.Text, nullable=True)
+    data_envio = db.Column(db.DateTime, default=datetime.utcnow)
 with app.app_context():
     db.drop_all()
     db.create_all()
