@@ -106,4 +106,5 @@ Faz o streaming do vÃ­deo gerado.
 
 ## Autor
 
-Jenifer - [Seu GitHub ou contato]
+Jenifer - https://github.com/jeniferGoncalvesDaSilvaDev 
++5547996257424
