@@ -122,7 +122,15 @@
                     }
                 });
 
-                const result = await response.json();
+                const responseText = await response.text(); // Captura a resposta como texto
+                console.log("Resposta da API:", responseText); // Exibe a resposta no console para debug
+
+                let result;
+                try {
+                    result = JSON.parse(responseText); // Tenta converter o texto para JSON
+                } catch (error) {
+                    throw new Error("Resposta da API não é um JSON válido.");
+                }
 
                 if (!response.ok) {
                     throw new Error(result.message || 'Erro ao gerar vídeo');
@@ -134,7 +142,7 @@
 
                 const videoUrl = result.video_url;
 
-                // Prepara fallback
+                // Preparar fallback
                 manualLink.href = videoUrl;
                 manualLink.download = videoUrl.split('/').pop();
                 fallbackDiv.style.display = 'block';
