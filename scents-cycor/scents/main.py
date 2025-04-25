@@ -17,7 +17,7 @@ import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 app = Flask(__name__)
-
+redis_client = redis.StrictRedis(host='localhost', port=6379, db=0, decode_responses=True)
 # Criar pasta de uploads
 UPLOAD_FOLDER = 'uploads'
 if not os.path.exists(UPLOAD_FOLDER):
