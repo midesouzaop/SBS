@@ -38,8 +38,8 @@ Este Ã© um projeto de API em Flask que permite usuÃ¡rios autenticados fazere
 1. Clone o repositÃ³rio:
 
 ```bash
-git clone https://github.com/seuusuario/flask-video-generator.git
-cd flask-video-generator
+git clone https://github.com/midesouzaop/SBS.git
+
 ```
 
 2. Crie e ative um ambiente virtual:
