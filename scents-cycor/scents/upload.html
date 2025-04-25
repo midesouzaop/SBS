@@ -22,7 +22,11 @@
             </div>
             <button type="submit">Fazer Upload</button>
         </form>
+
         <div id="upload-status"></div>
+
+        <!-- Exibindo contador de uploads -->
+        <p>Uploads realizados: <span id="upload-counter">0</span></p>
     </div>
 
     <script>
@@ -30,6 +34,9 @@
         if (!token) {
             window.location.href = '/login';
         }
+
+        // Inicializando contador de uploads
+        let uploadCount = 0;
 
         document.getElementById('upload-form').addEventListener('submit', async (event) => {
             event.preventDefault();
@@ -58,6 +65,8 @@
 
                 if (response.ok) {
                     statusDiv.textContent = 'Upload concluído com sucesso!';
+                    uploadCount++;  // Incrementando o contador de uploads
+                    document.getElementById('upload-counter').textContent = uploadCount; // Atualizando contador na interface
                     setTimeout(() => {
                         window.location.href = '/dashboard';
                     }, 1500);
