@@ -22,7 +22,17 @@
             margin-bottom: 20px;
         }
 
-        #generate-video-btn, #save-token-btn {
+        input[type="text"] {
+            width: 100%;
+            max-width: 400px;
+            padding: 10px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            font-size: 1rem;
+        }
+
+        #save-token-btn, #generate-video-btn {
             padding: 12px 24px;
             background-color: #007bff;
             border: none;
@@ -30,12 +40,12 @@
             color: white;
             font-size: 1rem;
             cursor: pointer;
+            margin-bottom: 15px;
             width: 100%;
             max-width: 300px;
-            margin-top: 10px;
         }
 
-        #generate-video-btn:hover, #save-token-btn:hover {
+        #save-token-btn:hover, #generate-video-btn:hover {
             background-color: #0056b3;
         }
 
@@ -61,23 +71,12 @@
             color: #00ffcc;
         }
 
-        #token-input {
-            width: 100%;
-            max-width: 400px;
-            padding: 10px;
-            margin-top: 5px;
-            background-color: #333;
-            border: 1px solid #555;
-            border-radius: 5px;
-            color: #f0f0f0;
-        }
-
         @media (min-width: 600px) {
             body {
                 padding: 40px;
             }
 
-            #generate-video-btn, #save-token-btn {
+            #save-token-btn, #generate-video-btn {
                 font-size: 1.1rem;
             }
 
@@ -90,13 +89,11 @@
 <body>
     <h1>Gerador de Vídeos</h1>
 
-    <div style="margin-bottom: 30px;">
-        <label for="token-input">Token de Acesso:</label><br>
-        <input type="text" id="token-input" placeholder="Insira seu token aqui">
-        <button id="save-token-btn">Salvar Token</button>
-    </div>
-
+    <input type="text" id="token-input" placeholder="Insira seu token aqui" />
+    <button id="save-token-btn">Salvar Token</button>
+    <br>
     <button id="generate-video-btn">Gerar Vídeo</button>
+
     <p id="status-message"></p>
 
     <div id="fallback-link">
@@ -104,6 +101,24 @@
     </div>
 
     <script>
+        // Preencher input com token salvo (se existir)
+        window.addEventListener('DOMContentLoaded', () => {
+            const savedToken = localStorage.getItem('token');
+            if (savedToken) {
+                document.getElementById('token-input').value = savedToken;
+            }
+        });
+
+        document.getElementById('save-token-btn').addEventListener('click', () => {
+            const tokenInput = document.getElementById('token-input').value.trim();
+            if (tokenInput) {
+                localStorage.setItem('token', tokenInput);
+                alert('Token salvo com sucesso!');
+            } else {
+                alert('Por favor, insira um token válido.');
+            }
+        });
+
         document.getElementById('generate-video-btn').addEventListener('click', async () => {
             const statusMessage = document.getElementById('status-message');
             const token = localStorage.getItem('token');
@@ -122,34 +137,31 @@
                     }
                 });
 
-                // Verifique se a resposta é válida
+                // Verifica se a resposta foi bem-sucedida
                 if (!response.ok) {
-                    throw new Error(`Erro HTTP: ${response.status} - ${response.statusText}`);
+                    const errorText = await response.text();  // Tenta ler como texto
+                    console.error('Erro HTTP:', response.status, errorText);
+                    throw new Error(`Erro ao gerar vídeo: ${response.status}`);
                 }
 
-                const responseText = await response.text(); // Captura a resposta como texto
-                console.log("Resposta da API:", responseText); // Exibe a resposta no console para debug
-
-                let result;
-                try {
-                    result = JSON.parse(responseText); // Tenta converter o texto para JSON
-                } catch (error) {
-                    throw new Error("Resposta da API não é um JSON válido.");
+                // Verifica se o conteúdo da resposta é JSON
+                const contentType = response.headers.get("Content-Type");
+                if (!contentType || !contentType.includes("application/json")) {
+                    throw new Error('Resposta não JSON recebida. Verifique o backend.');
                 }
 
-                // Checar se o campo video_url existe
-                if (!result.video_url) {
-                    throw new Error("A resposta não contém a URL do vídeo.");
-                }
+                const result = await response.json();
 
                 const videoUrl = result.video_url;
 
-                // Preparar fallback
+                if (!videoUrl.toLowerCase().endsWith('.mp4') && !videoUrl.toLowerCase().endsWith('.mp3')) {
+                    throw new Error('Formato inválido. Apenas .mp4 ou .mp3 são permitidos.');
+                }
+
                 manualLink.href = videoUrl;
                 manualLink.download = videoUrl.split('/').pop();
                 fallbackDiv.style.display = 'block';
 
-                // Tenta download automático
                 const a = document.createElement('a');
                 a.href = videoUrl;
                 a.download = videoUrl.split('/').pop();
@@ -157,7 +169,6 @@
                 a.click();
                 document.body.removeChild(a);
 
-                // Contagem regressiva
                 let seconds = 5;
                 statusMessage.innerHTML = `Vídeo gerado e download iniciado com sucesso!<br>Redirecionando para o login em <span id="countdown">${seconds}</span> segundos...`;
 
@@ -171,26 +182,9 @@
                 }, 1000);
 
             } catch (error) {
+                console.error('Erro:', error);  // Adicionando log mais detalhado
                 statusMessage.textContent = 'Erro: ' + error.message;
                 fallbackDiv.style.display = 'none';
-                console.error('Erro ao gerar vídeo:', error);
-            }
-        });
-
-        document.getElementById('save-token-btn').addEventListener('click', () => {
-            const tokenInput = document.getElementById('token-input').value.trim();
-            if (tokenInput) {
-                localStorage.setItem('token', tokenInput);
-                alert('Token salvo com sucesso!');
-            } else {
-                alert('Por favor, insira um token válido.');
-            }
-        });
-
-        window.addEventListener('DOMContentLoaded', () => {
-            const savedToken = localStorage.getItem('token');
-            if (savedToken) {
-                document.getElementById('token-input').value = savedToken;
             }
         });
     </script>
