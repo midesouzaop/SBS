@@ -14,3 +14,4 @@ regex
 requests 
 Flask-Mail
 python-dotenv
+Pillow
