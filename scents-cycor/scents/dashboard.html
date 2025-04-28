@@ -170,14 +170,14 @@
                 document.body.removeChild(a);
 
                 let seconds = 5;
-                statusMessage.innerHTML = `Vídeo gerado e download iniciado com sucesso!<br>Redirecionando para o login em <span id="countdown">${seconds}</span> segundos...`;
+                statusMessage.innerHTML = `Vídeo gerado e download iniciado com sucesso!<br>Redirecionando para o upload em <span id="countdown">${seconds}</span> segundos...`;
 
                 const interval = setInterval(() => {
                     seconds--;
                     document.getElementById('countdown').textContent = seconds;
                     if (seconds <= 0) {
                         clearInterval(interval);
-                        window.location.href = '/login';
+                        window.location.href = '/upload';
                     }
                 }, 1000);
 
