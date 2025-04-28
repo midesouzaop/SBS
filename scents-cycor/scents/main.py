@@ -476,6 +476,7 @@ def list_uploads(current_user):
         })
     return jsonify(files)
 
+#@app.route('/upload', methods=['POST'])
 @app.route('/upload', methods=['POST'])
 @token_required
 def upload_file(current_user):
@@ -486,25 +487,28 @@ def upload_file(current_user):
     if not file or not file.filename:
         return jsonify({'detail': 'Arquivo inválido'}), 400
 
-    # Verificar se é uma imagem ou vídeo
-    allowed_extensions = {'png', 'jpg', 'jpeg', 'gif', 'mp4', 'mov', 'avi'}
-    if '.' not in file.filename or \
-       file.filename.rsplit('.', 1)[1].lower() not in allowed_extensions:
-        return jsonify({'detail': 'Tipo de arquivo não permitido. Envie apenas imagens ou vídeos'}), 400
+    # Extensões aceitas (imagens, vídeos e áudios)
+    allowed_extensions = {'png', 'jpg', 'jpeg', 'gif', 'mp4', 'mov', 'avi', 'mp3', 'wav', 'ogg'}
 
+    # Verifica a extensão
+    if '.' not in file.filename or file.filename.rsplit('.', 1)[1].lower() not in allowed_extensions:
+        return jsonify({'detail': 'Tipo de arquivo não permitido. Envie apenas imagens, vídeos ou áudios'}), 400
+
+    # Salva o arquivo
     filename = secure_filename(file.filename)
-    file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-    new_file = GeneratedFile(filename=filename, user_id=current_user.id)
-    db.session.add(new_file)
-    current_user.file_count += 1
-    db.session.commit()
-
+    save_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+    
     try:
+        file.save(save_path)
+        new_file = GeneratedFile(filename=filename, user_id=current_user.id)
+        db.session.add(new_file)
+        current_user.file_count += 1
         db.session.commit()
         return jsonify({'message': 'Arquivo enviado com sucesso', 'filename': filename})
     except Exception as e:
         db.session.rollback()
-        return jsonify({'detail': 'Erro de conexão ao fazer upload'}), 500
+        print(f"Erro ao fazer upload: {e}")  # Log para debug
+        return jsonify({'detail': 'Erro interno ao fazer upload'}), 500
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=False)
