@@ -541,6 +541,13 @@ def list_uploads(current_user):
 #app = Flask(__name__)
 #app.config['UPLOAD_FOLDER'] = 'uploads'  # ajuste conforme seu diretório
 
+#from flask import Flask, request, jsonify
+#from werkzeug.utils import secure_filename
+#import os
+
+#app = Flask(__name__)
+#app.config['UPLOAD_FOLDER'] = 'uploads'  # ajuste conforme seu diretório
+
 @app.route('/upload', methods=['POST'])
 @token_required
 def upload_file(current_user):
@@ -556,19 +563,12 @@ def upload_file(current_user):
     if '.' not in file.filename or file.filename.rsplit('.', 1)[1].lower() not in allowed_extensions:
         return jsonify({'detail': 'Tipo de arquivo não permitido. Envie imagens, vídeos ou GIFs'}), 400
 
-    # Verifica o tamanho mínimo de 32MB
-    file.seek(0, os.SEEK_END)
-    file_size = file.tell()
-    file.seek(0)
-    if file_size < (32 * 1024 * 1024):
-        return jsonify({'detail': 'Arquivo muito pequeno. O tamanho mínimo é 32MB.'}), 400
+    # (Removemos a verificação de tamanho mínimo!)
 
-    # Apenas salva
     filename = secure_filename(file.filename)
     save_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
     file.save(save_path)
 
-    # Salva no banco
     try:
         new_file = GeneratedFile(filename=filename, user_id=current_user.id)
         db.session.add(new_file)
@@ -579,6 +579,5 @@ def upload_file(current_user):
         db.session.rollback()
         print(f"Erro ao salvar no banco: {e}")
         return jsonify({'detail': 'Erro interno ao fazer upload'}), 500
-
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=False)
