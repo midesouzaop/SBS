@@ -5,6 +5,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Scents Ads - Upload</title>
     <link rel="stylesheet" href="/static/styles.css">
+    <style>
+        #progress-container {
+            width: 100%;
+            background-color: #f3f3f3;
+            border-radius: 5px;
+            margin-top: 10px;
+            display: none;
+        }
+        #progress-bar {
+            width: 0%;
+            height: 20px;
+            background-color: #4CAF50;
+            border-radius: 5px;
+            transition: width 0.4s ease;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
@@ -22,6 +38,11 @@
             </div>
             <button type="submit">Fazer Upload</button>
         </form>
+
+        <div id="progress-container">
+            <div id="progress-bar"></div>
+        </div>
+
         <div id="upload-status"></div>
     </div>
 
@@ -31,10 +52,12 @@
             window.location.href = '/login';
         }
 
-        document.getElementById('upload-form').addEventListener('submit', async (event) => {
+        document.getElementById('upload-form').addEventListener('submit', (event) => {
             event.preventDefault();
             const statusDiv = document.getElementById('upload-status');
             const mediaFile = document.getElementById('media-upload').files[0];
+            const progressContainer = document.getElementById('progress-container');
+            const progressBar = document.getElementById('progress-bar');
 
             if (!mediaFile) {
                 statusDiv.textContent = 'Selecione um arquivo para enviar.';
@@ -44,30 +67,41 @@
             const formData = new FormData();
             formData.append('media', mediaFile);
 
-            try {
-                statusDiv.textContent = 'Enviando arquivo...';
-                const response = await fetch('/upload', {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    },
-                    body: formData
-                });
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', '/upload', true);
+            xhr.setRequestHeader('Authorization', `Bearer ${token}`);
 
-                const result = await response.json();
+            xhr.upload.addEventListener('progress', (e) => {
+                if (e.lengthComputable) {
+                    const percentComplete = (e.loaded / e.total) * 100;
+                    progressContainer.style.display = 'block';
+                    progressBar.style.width = percentComplete + '%';
+                }
+            });
 
-                if (response.ok) {
+            xhr.onload = () => {
+                if (xhr.status === 200) {
                     statusDiv.textContent = 'Upload concluído com sucesso!';
                     setTimeout(() => {
                         window.location.href = '/dashboard';
                     }, 1500);
                 } else {
+                    const result = JSON.parse(xhr.responseText);
                     statusDiv.textContent = `Erro: ${result.detail || 'Erro ao processar o arquivo'}`;
                 }
-            } catch (error) {
-                console.error('Erro:', error);
+                progressContainer.style.display = 'none'; // Esconde a barra depois
+                progressBar.style.width = '0%';
+            };
+
+            xhr.onerror = () => {
                 statusDiv.textContent = 'Erro de conexão com o servidor';
-            }
+                progressContainer.style.display = 'none';
+                progressBar.style.width = '0%';
+            };
+
+            xhr.send(formData);
+
+            statusDiv.textContent = 'Enviando arquivo...';
         });
 
         document.getElementById('media-upload').addEventListener('change', function(e) {
