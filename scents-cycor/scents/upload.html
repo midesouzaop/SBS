@@ -150,6 +150,9 @@ document.getElementById('uploadForm').addEventListener('submit', function(event)
             if (xhr.status === 200) {
                 const response = JSON.parse(xhr.responseText);
                 messageDiv.innerText = response.message || 'Upload realizado!';
+                setTimeout(() => {
+                    window.location.href = '/dashboard';
+                }, 1500);
             } else {
                 const response = JSON.parse(xhr.responseText);
                 messageDiv.innerText = response.detail || 'Erro no upload.';
