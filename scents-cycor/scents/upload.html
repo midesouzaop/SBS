@@ -5,25 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Scents Ads - Upload</title>
     <link rel="stylesheet" href="/static/styles.css">
-    <style>
-        /* Estilos da barra de progresso */
-        #progress-container {
-            display: none;
-            width: 100%;
-            background-color: #ddd;
-            margin-top: 10px;
-            border-radius: 10px;
-            overflow: hidden;
-        }
-        #progress-bar {
-            width: 0%;
-            height: 20px;
-            background-color: #4caf50;
-            transition: width 0.4s ease;
-        }
-    </style>
 </head>
-
 <body>
     <div class="container">
         <h1>Upload de Mídia</h1>
@@ -36,17 +18,11 @@
                        id="media-upload" 
                        name="media" 
                        accept="image/*,video/*,.gif">
-                <p class="file-types">Formatos aceitos: imagens, vídeos, GIFs (máx. 20 segundos para vídeos)</p>
+                <p class="file-types">Formatos aceitos: imagens, vídeos (até 30s) e GIFs (mínimo 32MB)</p>
             </div>
             <button type="submit">Fazer Upload</button>
         </form>
-
         <div id="upload-status"></div>
-
-        <!-- Barra de progresso -->
-        <div id="progress-container">
-            <div id="progress-bar"></div>
-        </div>
     </div>
 
     <script>
@@ -55,74 +31,81 @@
             window.location.href = '/login';
         }
 
+        const maxVideoDuration = 30; // segundos
+        const minFileSize = 32 * 1024 * 1024; // 32MB
+
         document.getElementById('upload-form').addEventListener('submit', async (event) => {
             event.preventDefault();
             const statusDiv = document.getElementById('upload-status');
             const mediaFile = document.getElementById('media-upload').files[0];
-            const progressContainer = document.getElementById('progress-container');
-            const progressBar = document.getElementById('progress-bar');
 
             if (!mediaFile) {
                 statusDiv.textContent = 'Selecione um arquivo para enviar.';
                 return;
             }
 
-            // Verificação de duração máxima para vídeos
-            if (mediaFile.type.startsWith('video/')) {
+            // Validação de tamanho (mínimo 32MB)
+            if (mediaFile.size < minFileSize) {
+                statusDiv.textContent = 'Arquivo muito pequeno. O tamanho mínimo é 32MB.';
+                return;
+            }
+
+            const fileType = mediaFile.type;
+            const isVideo = fileType.startsWith('video/');
+
+            // Se for vídeo, validar duração antes de enviar
+            if (isVideo) {
+                const videoURL = URL.createObjectURL(mediaFile);
                 const video = document.createElement('video');
                 video.preload = 'metadata';
-
-                video.onloadedmetadata = () => {
+                video.src = videoURL;
+                
+                video.onloadedmetadata = async () => {
                     window.URL.revokeObjectURL(video.src);
+
                     const duration = video.duration;
-                    if (duration > 20) {
-                        statusDiv.textContent = 'O vídeo deve ter no máximo 20 segundos.';
+                    if (duration > maxVideoDuration) {
+                        statusDiv.textContent = `O vídeo excede a duração máxima de ${maxVideoDuration} segundos.`;
                         return;
-                    } else {
-                        enviarArquivo(mediaFile, progressContainer, progressBar, statusDiv);
                     }
+
+                    // Se passou em tudo, envia
+                    await sendFile(mediaFile, statusDiv);
                 };
-                video.src = URL.createObjectURL(mediaFile);
             } else {
-                enviarArquivo(mediaFile, progressContainer, progressBar, statusDiv);
+                // Se não for vídeo, envia direto
+                await sendFile(mediaFile, statusDiv);
             }
         });
 
-        function enviarArquivo(mediaFile, progressContainer, progressBar, statusDiv) {
+        async function sendFile(file, statusDiv) {
             const formData = new FormData();
-            formData.append('media', mediaFile);
+            formData.append('media', file);
 
-            const xhr = new XMLHttpRequest();
-            xhr.open('POST', '/upload', true);
-            xhr.setRequestHeader('Authorization', `Bearer ${localStorage.getItem('token')}`);
+            try {
+                statusDiv.textContent = 'Enviando arquivo...';
+                const response = await fetch('/upload', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: formData
+                });
 
-            progressContainer.style.display = 'block';
-            progressBar.style.width = '0%';
+                const result = await response.json();
 
-            xhr.upload.addEventListener('progress', (e) => {
-                if (e.lengthComputable) {
-                    const percent = (e.loaded / e.total) * 100;
-                    progressBar.style.width = percent + '%';
-                }
-            });
-
-            xhr.onload = () => {
-                if (xhr.status >= 200 && xhr.status < 300) {
+                if (response.ok) {
                     statusDiv.textContent = 'Upload concluído com sucesso!';
                     setTimeout(() => {
                         window.location.href = '/dashboard';
                     }, 1500);
                 } else {
-                    const response = JSON.parse(xhr.responseText);
-                    statusDiv.textContent = `Erro: ${response.detail || 'Erro ao processar o arquivo'}`;
+                    statusDiv.textContent = `Erro: ${result.detail || 'Erro ao processar o arquivo'}`;
                 }
-            };
-
-            xhr.onerror = () => {
-                statusDiv.textContent = 'Erro de conexão ao enviar arquivo.';
-            };
-
-            xhr.send(formData);
+            } catch (error) {
+                console.error('Erro:', error);
+                statusDiv.textContent = 'Erro de conexão ao enviar arquivo';
+            }
         }
 
         document.getElementById('media-upload').addEventListener('change', function(e) {
