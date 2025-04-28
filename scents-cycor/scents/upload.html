@@ -1,182 +1,79 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Upload de Arquivo com Estilo</title>
-    <style>
-        body {
-            background-color: #121212;
-            color: #e0e0e0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            margin: 0;
-        }
-
-        h1 {
-            color: #00ffcc;
-            margin-bottom: 20px;
-        }
-
-        form {
-            background-color: #1f1f1f;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 0 10px #00ffcc;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        input[type="file"] {
-            margin-bottom: 15px;
-            color: #e0e0e0;
-        }
-
-        button {
-            background-color: #00ffcc;
-            border: none;
-            color: #121212;
-            padding: 10px 20px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: background-color 0.3s ease;
-        }
-
-        button:hover {
-            background-color: #00bfa6;
-        }
-
-        #progressContainer {
-            width: 100%;
-            background-color: #333;
-            margin-top: 15px;
-            border-radius: 10px;
-            overflow: hidden;
-            height: 20px;
-            display: none;
-        }
-
-        #progressBar {
-            height: 100%;
-            width: 0%;
-            background: linear-gradient(90deg, #00ffcc, #00bfa6);
-            text-align: center;
-            line-height: 20px;
-            color: #121212;
-            font-weight: bold;
-            transition: width 0.3s ease;
-        }
-
-        #message {
-            margin-top: 15px;
-            font-size: 16px;
-            color: #00ffcc;
-            text-align: center;
-        }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scents Ads - Upload</title>
+    <link rel="stylesheet" href="/static/styles.css">
 </head>
 <body>
+    <div class="container">
+        <h1>Upload de Mídia</h1>
+        <p>Aplique a tecnologia Scents ao seu conteúdo</p>
 
-<h1>Upload de Arquivo</h1>
-
-<form id="uploadForm">
-    <input type="file" id="media" name="media" accept="image/*,video/*" required>
-    <button type="submit">Enviar</button>
-
-    <div id="progressContainer">
-        <div id="progressBar">0%</div>
+        <form id="upload-form" enctype="multipart/form-data">
+            <div class="file-upload-container">
+                <h3>Upload de Mídia Visual ou Áudio</h3>
+                <input type="file" 
+                       id="media-upload" 
+                       name="media" 
+                       accept="image/*,video/*,audio/*,.gif">
+                <p class="file-types">Formatos aceitos: imagens, vídeos, áudios, GIFs</p>
+            </div>
+            <button type="submit">Fazer Upload</button>
+        </form>
+        <div id="upload-status"></div>
     </div>
 
-    <div id="message"></div>
-</form>
+    <script>
+        const token = localStorage.getItem('token');
+        if (!token) {
+            window.location.href = '/login';
+        }
 
-<script>
-document.getElementById('uploadForm').addEventListener('submit', function(event) {
-    event.preventDefault();
-    const fileInput = document.getElementById('media');
-    const file = fileInput.files[0];
-    const messageDiv = document.getElementById('message');
-    const progressContainer = document.getElementById('progressContainer');
-    const progressBar = document.getElementById('progressBar');
+        document.getElementById('upload-form').addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const statusDiv = document.getElementById('upload-status');
+            const mediaFile = document.getElementById('media-upload').files[0];
 
-    if (!file) {
-        messageDiv.innerText = 'Nenhum arquivo selecionado.';
-        return;
-    }
-
-    if (file.type.startsWith('video/')) {
-        const video = document.createElement('video');
-        video.preload = 'metadata';
-
-        video.onloadedmetadata = function() {
-            window.URL.revokeObjectURL(video.src);
-
-            if (video.duration > 30) {
-                messageDiv.innerText = 'O vídeo excede 30 segundos.';
+            if (!mediaFile) {
+                statusDiv.textContent = 'Selecione um arquivo para enviar.';
                 return;
             }
 
-            sendFile(file);
-        };
+            const formData = new FormData();
+            formData.append('media', mediaFile);
 
-        video.src = URL.createObjectURL(file);
-    } else {
-        sendFile(file);
-    }
+            try {
+                statusDiv.textContent = 'Enviando arquivo...';
+                const response = await fetch('/upload', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: formData
+                });
 
-    function sendFile(file) {
-        const formData = new FormData();
-        formData.append('media', file);
+                const result = await response.json();
 
-        const xhr = new XMLHttpRequest();
-        xhr.open('POST', '/upload', true);
-        xhr.setRequestHeader('Authorization', 'Bearer seu_token_aqui'); // Insira seu token!
-
-        xhr.upload.onprogress = function(event) {
-            if (event.lengthComputable) {
-                const percentComplete = Math.round((event.loaded / event.total) * 100);
-                progressContainer.style.display = 'block';
-                progressBar.style.width = percentComplete + '%';
-                progressBar.textContent = percentComplete + '%';
+                if (response.ok) {
+                    statusDiv.textContent = 'Upload concluído com sucesso!';
+                    setTimeout(() => {
+                        window.location.href = '/dashboard';
+                    }, 1500);
+                } else {
+                    statusDiv.textContent = `Erro: ${result.detail || 'Erro ao processar o arquivo'}`;
+                }
+            } catch (error) {
+                console.error('Erro:', error);
+                statusDiv.textContent = 'Erro de conexão com o servidor';
             }
-        };
+        });
 
-        xhr.onload = function() {
-            if (xhr.status === 200) {
-                const response = JSON.parse(xhr.responseText);
-                messageDiv.innerText = response.message || 'Upload realizado!';
-                setTimeout(() => {
-                    window.location.href = '/dashboard';
-                }, 1500);
-            } else {
-                const response = JSON.parse(xhr.responseText);
-                messageDiv.innerText = response.detail || 'Erro no upload.';
-            }
-            resetProgressBar();
-        };
-
-        xhr.onerror = function() {
-            messageDiv.innerText = 'Erro de conexão.';
-            resetProgressBar();
-        };
-
-        xhr.send(formData);
-    }
-
-    function resetProgressBar() {
-        setTimeout(() => {
-            progressContainer.style.display = 'none';
-            progressBar.style.width = '0%';
-            progressBar.textContent = '0%';
-        }, 1500);
-    }
-});
-</script>
-
+        document.getElementById('media-upload').addEventListener('change', function(e) {
+            const fileName = e.target.files[0]?.name || 'Nenhum arquivo selecionado';
+            e.target.parentElement.querySelector('.file-types').textContent = `Arquivo selecionado: ${fileName}`;
+        });
+    </script>
 </body>
 </html>
