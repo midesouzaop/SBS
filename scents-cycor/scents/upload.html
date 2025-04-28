@@ -20,6 +20,11 @@
             border-radius: 5px;
             transition: width 0.4s ease;
         }
+        .warning {
+            color: red;
+            font-weight: bold;
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
@@ -34,7 +39,7 @@
                        id="media-upload" 
                        name="media" 
                        accept="image/*,video/*,audio/*,.gif">
-                <p class="file-types">Formatos aceitos: imagens, vídeos, áudios, GIFs</p>
+                <p class="file-types">Formatos aceitos: imagens, vídeos (máximo 30 segundos), áudios e GIFs</p>
             </div>
             <button type="submit">Fazer Upload</button>
         </form>
@@ -43,7 +48,7 @@
             <div id="progress-bar"></div>
         </div>
 
-        <div id="upload-status"></div>
+        <div id="upload-status" class="warning"></div>
     </div>
 
     <script>
@@ -55,7 +60,8 @@
         document.getElementById('upload-form').addEventListener('submit', (event) => {
             event.preventDefault();
             const statusDiv = document.getElementById('upload-status');
-            const mediaFile = document.getElementById('media-upload').files[0];
+            const mediaInput = document.getElementById('media-upload');
+            const mediaFile = mediaInput.files[0];
             const progressContainer = document.getElementById('progress-container');
             const progressBar = document.getElementById('progress-bar');
 
@@ -64,6 +70,31 @@
                 return;
             }
 
+            // Verificar se é vídeo
+            if (mediaFile.type.startsWith('video/')) {
+                const video = document.createElement('video');
+                video.preload = 'metadata';
+
+                video.onloadedmetadata = () => {
+                    window.URL.revokeObjectURL(video.src);
+                    const duration = video.duration;
+                    if (duration > 30) {
+                        statusDiv.textContent = 'Erro: O vídeo deve ter no máximo 30 segundos.';
+                        return;
+                    } else {
+                        // Se ok, enviar
+                        enviarArquivo(mediaFile, statusDiv, progressContainer, progressBar);
+                    }
+                };
+
+                video.src = URL.createObjectURL(mediaFile);
+            } else {
+                // Se não for vídeo, enviar direto
+                enviarArquivo(mediaFile, statusDiv, progressContainer, progressBar);
+            }
+        });
+
+        function enviarArquivo(mediaFile, statusDiv, progressContainer, progressBar) {
             const formData = new FormData();
             formData.append('media', mediaFile);
 
@@ -89,12 +120,12 @@
                     const result = JSON.parse(xhr.responseText);
                     statusDiv.textContent = `Erro: ${result.detail || 'Erro ao processar o arquivo'}`;
                 }
-                progressContainer.style.display = 'none'; // Esconde a barra depois
+                progressContainer.style.display = 'none';
                 progressBar.style.width = '0%';
             };
 
             xhr.onerror = () => {
-                statusDiv.textContent = 'Erro de conexão com o servidor';
+                statusDiv.textContent = 'Erro de conexão com o servidor.';
                 progressContainer.style.display = 'none';
                 progressBar.style.width = '0%';
             };
@@ -102,11 +133,11 @@
             xhr.send(formData);
 
             statusDiv.textContent = 'Enviando arquivo...';
-        });
+        }
 
         document.getElementById('media-upload').addEventListener('change', function(e) {
             const fileName = e.target.files[0]?.name || 'Nenhum arquivo selecionado';
-            e.target.parentElement.querySelector('.file-types').textContent = `Arquivo selecionado: ${fileName}`;
+            e.target.parentElement.querySelector('.file-types').textContent = `Arquivo selecionado: ${fileName} (máximo 30s para vídeos)`;
         });
     </script>
 </body>
