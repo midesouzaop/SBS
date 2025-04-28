@@ -2,16 +2,35 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <title>Upload de Arquivo</title>
+    <title>Upload de Arquivo com Progresso</title>
+    <style>
+        #progressContainer {
+            width: 100%;
+            background-color: #eee;
+            margin-top: 10px;
+        }
+
+        #progressBar {
+            width: 0%;
+            height: 20px;
+            background-color: #4CAF50;
+            text-align: center;
+            color: white;
+        }
+    </style>
 </head>
 <body>
 
-<h1>Upload de Imagem, GIF ou Vídeo</h1>
+<h1>Upload de Arquivo</h1>
 
 <form id="uploadForm">
     <input type="file" id="media" name="media" accept="image/*,video/*" required>
     <button type="submit">Enviar</button>
 </form>
+
+<div id="progressContainer" style="display: none;">
+    <div id="progressBar">0%</div>
+</div>
 
 <div id="message"></div>
 
@@ -21,19 +40,15 @@ document.getElementById('uploadForm').addEventListener('submit', async function(
     const fileInput = document.getElementById('media');
     const file = fileInput.files[0];
     const messageDiv = document.getElementById('message');
+    const progressContainer = document.getElementById('progressContainer');
+    const progressBar = document.getElementById('progressBar');
 
     if (!file) {
         messageDiv.innerText = 'Nenhum arquivo selecionado.';
         return;
     }
 
-    // Verificar tamanho mínimo de 32MB
-    if (file.size < (32 * 1024 * 1024)) {
-        messageDiv.innerText = 'O arquivo é muito pequeno. O mínimo é 32MB.';
-        return;
-    }
-
-    // Se for vídeo, verificar duração
+    // Se for vídeo, checar duração
     if (file.type.startsWith('video/')) {
         const video = document.createElement('video');
         video.preload = 'metadata';
@@ -46,37 +61,56 @@ document.getElementById('uploadForm').addEventListener('submit', async function(
                 return;
             }
 
-            // Se passou, faz upload
+            // Se ok, faz upload
             sendFile(file);
         };
 
         video.src = URL.createObjectURL(file);
     } else {
-        // Se não for vídeo, faz upload direto
+        // Se imagem ou GIF
         sendFile(file);
     }
-});
 
-async function sendFile(file) {
-    const formData = new FormData();
-    formData.append('media', file);
+    function sendFile(file) {
+        const formData = new FormData();
+        formData.append('media', file);
 
-    try {
-        const response = await fetch('/upload', {
-            method: 'POST',
-            body: formData,
-            headers: {
-                'Authorization': 'Bearer seu_token_aqui'  // ajuste seu token
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', '/upload', true);
+        xhr.setRequestHeader('Authorization', 'Bearer seu_token_aqui'); // Ajuste seu token!
+
+        xhr.upload.onprogress = function(event) {
+            if (event.lengthComputable) {
+                const percentComplete = Math.round((event.loaded / event.total) * 100);
+                progressContainer.style.display = 'block';
+                progressBar.style.width = percentComplete + '%';
+                progressBar.textContent = percentComplete + '%';
             }
-        });
+        };
 
-        const result = await response.json();
-        document.getElementById('message').innerText = result.message || result.detail;
-    } catch (error) {
-        console.error('Erro:', error);
-        document.getElementById('message').innerText = 'Erro ao fazer upload.';
+        xhr.onload = function() {
+            if (xhr.status === 200) {
+                const response = JSON.parse(xhr.responseText);
+                messageDiv.innerText = response.message || 'Upload realizado!';
+            } else {
+                const response = JSON.parse(xhr.responseText);
+                messageDiv.innerText = response.detail || 'Erro no upload.';
+            }
+            progressContainer.style.display = 'none';
+            progressBar.style.width = '0%';
+            progressBar.textContent = '0%';
+        };
+
+        xhr.onerror = function() {
+            messageDiv.innerText = 'Erro de conexão.';
+            progressContainer.style.display = 'none';
+            progressBar.style.width = '0%';
+            progressBar.textContent = '0%';
+        };
+
+        xhr.send(formData);
     }
-}
+});
 </script>
 
 </body>
