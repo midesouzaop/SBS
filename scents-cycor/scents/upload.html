@@ -2,20 +2,81 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <title>Upload de Arquivo com Progresso</title>
+    <title>Upload de Arquivo com Estilo</title>
     <style>
+        body {
+            background-color: #121212;
+            color: #e0e0e0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        h1 {
+            color: #00ffcc;
+            margin-bottom: 20px;
+        }
+
+        form {
+            background-color: #1f1f1f;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px #00ffcc;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        input[type="file"] {
+            margin-bottom: 15px;
+            color: #e0e0e0;
+        }
+
+        button {
+            background-color: #00ffcc;
+            border: none;
+            color: #121212;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #00bfa6;
+        }
+
         #progressContainer {
             width: 100%;
-            background-color: #eee;
-            margin-top: 10px;
+            background-color: #333;
+            margin-top: 15px;
+            border-radius: 10px;
+            overflow: hidden;
+            height: 20px;
+            display: none;
         }
 
         #progressBar {
+            height: 100%;
             width: 0%;
-            height: 20px;
-            background-color: #4CAF50;
+            background: linear-gradient(90deg, #00ffcc, #00bfa6);
             text-align: center;
-            color: white;
+            line-height: 20px;
+            color: #121212;
+            font-weight: bold;
+            transition: width 0.3s ease;
+        }
+
+        #message {
+            margin-top: 15px;
+            font-size: 16px;
+            color: #00ffcc;
+            text-align: center;
         }
     </style>
 </head>
@@ -26,16 +87,16 @@
 <form id="uploadForm">
     <input type="file" id="media" name="media" accept="image/*,video/*" required>
     <button type="submit">Enviar</button>
+
+    <div id="progressContainer">
+        <div id="progressBar">0%</div>
+    </div>
+
+    <div id="message"></div>
 </form>
 
-<div id="progressContainer" style="display: none;">
-    <div id="progressBar">0%</div>
-</div>
-
-<div id="message"></div>
-
 <script>
-document.getElementById('uploadForm').addEventListener('submit', async function(event) {
+document.getElementById('uploadForm').addEventListener('submit', function(event) {
     event.preventDefault();
     const fileInput = document.getElementById('media');
     const file = fileInput.files[0];
@@ -48,7 +109,6 @@ document.getElementById('uploadForm').addEventListener('submit', async function(
         return;
     }
 
-    // Se for vídeo, checar duração
     if (file.type.startsWith('video/')) {
         const video = document.createElement('video');
         video.preload = 'metadata';
@@ -61,13 +121,11 @@ document.getElementById('uploadForm').addEventListener('submit', async function(
                 return;
             }
 
-            // Se ok, faz upload
             sendFile(file);
         };
 
         video.src = URL.createObjectURL(file);
     } else {
-        // Se imagem ou GIF
         sendFile(file);
     }
 
@@ -77,7 +135,7 @@ document.getElementById('uploadForm').addEventListener('submit', async function(
 
         const xhr = new XMLHttpRequest();
         xhr.open('POST', '/upload', true);
-        xhr.setRequestHeader('Authorization', 'Bearer seu_token_aqui'); // Ajuste seu token!
+        xhr.setRequestHeader('Authorization', 'Bearer seu_token_aqui'); // Insira seu token!
 
         xhr.upload.onprogress = function(event) {
             if (event.lengthComputable) {
@@ -96,19 +154,23 @@ document.getElementById('uploadForm').addEventListener('submit', async function(
                 const response = JSON.parse(xhr.responseText);
                 messageDiv.innerText = response.detail || 'Erro no upload.';
             }
-            progressContainer.style.display = 'none';
-            progressBar.style.width = '0%';
-            progressBar.textContent = '0%';
+            resetProgressBar();
         };
 
         xhr.onerror = function() {
             messageDiv.innerText = 'Erro de conexão.';
-            progressContainer.style.display = 'none';
-            progressBar.style.width = '0%';
-            progressBar.textContent = '0%';
+            resetProgressBar();
         };
 
         xhr.send(formData);
+    }
+
+    function resetProgressBar() {
+        setTimeout(() => {
+            progressContainer.style.display = 'none';
+            progressBar.style.width = '0%';
+            progressBar.textContent = '0%';
+        }, 1500);
     }
 });
 </script>
