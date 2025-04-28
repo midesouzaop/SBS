@@ -76,50 +76,102 @@ with app.app_context():
     db.drop_all()
     db.create_all()
 
-# Funções auxiliares
+#import os
+#import subprocess
 import cv2
+from PIL import Image
+#import uuid
 import numpy as np
 
-def generate_video_with_audio(image_filename, mp3_filename, output_filename):
+def generate_video_with_audio(input_path, audio_path, output_path):
     try:
-        if not os.path.exists(image_filename):
-            raise Exception(f"Imagem não encontrada: {image_filename}")
-        if not os.path.exists(mp3_filename):
-            raise Exception(f"Áudio não encontrado: {mp3_filename}")
+        if not os.path.exists(input_path):
+            raise Exception(f"Arquivo de entrada não encontrado: {input_path}")
+        if not os.path.exists(audio_path):
+            raise Exception(f"Arquivo de áudio não encontrado: {audio_path}")
 
-        img = cv2.imread(image_filename)
-        if img is None:
-            raise Exception("Erro ao carregar imagem")
+        # Detecta o tipo de arquivo
+        ext = os.path.splitext(input_path)[-1].lower()
+        is_image = ext in ['.jpg', '.jpeg', '.png', '.bmp']
+        is_gif = ext == '.gif'
+        is_video = ext in ['.mp4', '.avi', '.mov', '.mkv', '.webm']
 
-        height, width = img.shape[:2]
-        if width > 640:
-            scale = 640 / width
-            width = 640
-            height = int(height * scale)
-            img = cv2.resize(img, (width, height))
+        temp_video = output_path + '.temp.mp4'
 
-        fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-        out = cv2.VideoWriter(output_filename, fourcc, 24.0, (width, height))
+        if is_image:
+            # Se for imagem estática
+            img = cv2.imread(input_path)
+            if img is None:
+                raise Exception("Erro ao carregar imagem")
 
-        # Gera 30 segundos de vídeo (24fps * 30s = 720 frames)
-        for _ in range(720):
-            out.write(img)
+            height, width = img.shape[:2]
+            if width > 640:
+                scale = 640 / width
+                width = 640
+                height = int(height * scale)
+                img = cv2.resize(img, (width, height))
 
-        out.release()
+            fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+            out = cv2.VideoWriter(temp_video, fourcc, 24.0, (width, height))
 
-        # Combina vídeo e áudio usando ffmpeg
-        temp_video = output_filename + '.temp.mp4'
-        os.rename(output_filename, temp_video)
-        os.system(f'ffmpeg -i {temp_video} -i {mp3_filename} -c:v copy -c:a aac -shortest {output_filename}')
+            for _ in range(720):  # 30 segundos a 24 fps
+                out.write(img)
+
+            out.release()
+            cv2.destroyAllWindows()
+
+        elif is_gif:
+            # Se for GIF animado
+            clip_duration = get_audio_duration(audio_path)  # Duraçao do áudio em segundos
+            os.system(f'ffmpeg -y -i "{input_path}" -t {clip_duration} -vf "scale=640:-2,fps=24" "{temp_video}"')
+
+        elif is_video:
+            # Se já for vídeo
+            os.system(f'cp "{input_path}" "{temp_video}"')  # Se for Windows, pode precisar de shutil.copy
+
+        else:
+            raise Exception(f"Tipo de arquivo não suportado: {ext}")
+
+        # Agora combina vídeo e áudio
+        command = [
+            'ffmpeg', '-y', '-i', temp_video, '-i', audio_path,
+            '-c:v', 'copy', '-c:a', 'aac', '-shortest', output_path
+        ]
+        result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+        if result.returncode != 0:
+            raise Exception(f"Erro no ffmpeg: {result.stderr.decode()}")
+
         os.remove(temp_video)
 
-        if not os.path.exists(output_filename):
-            raise Exception("Arquivo de saída não foi gerado")
+        if not os.path.exists(output_path):
+            raise Exception("Arquivo de saída não gerado")
 
         return True
+
     except Exception as e:
-        print(f"Erro detalhado ao gerar vídeo: {str(e)}")
+        print(f"Erro: {str(e)}")
         return False
+
+def get_audio_duration(audio_path):
+    try:
+        import wave
+        import contextlib
+        import subprocess
+
+        # Tenta pegar duração usando ffprobe (melhor)
+        result = subprocess.run(
+            ['ffprobe', '-v', 'error', '-show_entries',
+             'format=duration', '-of',
+             'default=noprint_wrappers=1:nokey=1', audio_path],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT
+        )
+        duration = float(result.stdout)
+        return duration
+    except Exception as e:
+        print(f"Erro ao pegar duração do áudio: {str(e)}")
+        return 30.0  # fallback para 30s se der erro
 
 def generate_token(user_id):
     payload = {
