@@ -39,7 +39,8 @@ check_ffmpeg_installed()
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
 #app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
-app.config['MAX_CONTENT_LENGTH'] = 500 * 1024 * 1024  # 500 MB
+#app.config['MAX_CONTENT_LENGTH'] = 500 * 1024 * 1024  # 500 MB
+app.config['MAX_CONTENT_LENGTH'] = 100 * 1024 * 1024  # 100MB
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'default_secret_key')
 db = SQLAlchemy(app)
 limiter = Limiter(key_func=get_remote_address)
@@ -529,7 +530,11 @@ def list_uploads(current_user):
         })
     return jsonify(files)
 
-#@app.route('/upload', methods=['POST'])
+#from flask import Flask, request, jsonify
+#from werkzeug.utils import secure_filename
+#import os
+import moviepy.editor as mp  # para checar duração dos vídeos
+
 @app.route('/upload', methods=['POST'])
 @token_required
 def upload_file(current_user):
@@ -540,19 +545,50 @@ def upload_file(current_user):
     if not file or not file.filename:
         return jsonify({'detail': 'Arquivo inválido'}), 400
 
-    # Extensões aceitas (imagens, vídeos e áudios)
-    allowed_extensions = {'png', 'jpg', 'jpeg', 'gif', 'mp4', 'mov', 'avi', 'mp3', 'wav', 'ogg'}
+    # Extensões aceitas
+    allowed_extensions = {'png', 'jpg', 'jpeg', 'gif', 'mp4', 'mov', 'avi'}
 
     # Verifica a extensão
     if '.' not in file.filename or file.filename.rsplit('.', 1)[1].lower() not in allowed_extensions:
-        return jsonify({'detail': 'Tipo de arquivo não permitido. Envie apenas imagens, vídeos ou áudios'}), 400
+        return jsonify({'detail': 'Tipo de arquivo não permitido. Envie imagens, vídeos ou GIFs'}), 400
 
-    # Salva o arquivo
-    filename = secure_filename(file.filename)
-    save_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-    
-    try:
+    # Verifica o tamanho mínimo de 32MB (32 * 1024 * 1024 bytes)
+    file.seek(0, os.SEEK_END)  # Move para o final
+    file_size = file.tell()    # Pega o tamanho
+    file.seek(0)               # Volta para o início
+    if file_size < (32 * 1024 * 1024):
+        return jsonify({'detail': 'Arquivo muito pequeno. O tamanho mínimo é 32MB.'}), 400
+
+    # Verifica a duração se for vídeo
+    extension = file.filename.rsplit('.', 1)[1].lower()
+    if extension in {'mp4', 'mov', 'avi'}:
+        temp_path = os.path.join(app.config['UPLOAD_FOLDER'], 'temp_' + secure_filename(file.filename))
+        file.save(temp_path)  # Salva temporariamente para medir duração
+
+        try:
+            clip = mp.VideoFileClip(temp_path)
+            duration = clip.duration  # duração em segundos
+            clip.close()
+            if duration > 30:
+                os.remove(temp_path)  # Apaga o arquivo
+                return jsonify({'detail': 'O vídeo excede a duração máxima de 30 segundos.'}), 400
+        except Exception as e:
+            os.remove(temp_path)
+            print(f"Erro ao verificar duração do vídeo: {e}")
+            return jsonify({'detail': 'Erro ao verificar a duração do vídeo.'}), 500
+
+        # Se passou nas validações, salva definitivamente
+        final_filename = secure_filename(file.filename)
+        final_path = os.path.join(app.config['UPLOAD_FOLDER'], final_filename)
+        os.rename(temp_path, final_path)
+    else:
+        # Se for imagem ou GIF, salva normalmente
+        filename = secure_filename(file.filename)
+        save_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
         file.save(save_path)
+
+    # Salva no banco
+    try:
         new_file = GeneratedFile(filename=filename, user_id=current_user.id)
         db.session.add(new_file)
         current_user.file_count += 1
@@ -560,8 +596,9 @@ def upload_file(current_user):
         return jsonify({'message': 'Arquivo enviado com sucesso', 'filename': filename})
     except Exception as e:
         db.session.rollback()
-        print(f"Erro ao fazer upload: {e}")  # Log para debug
+        print(f"Erro ao salvar no banco: {e}")
         return jsonify({'detail': 'Erro interno ao fazer upload'}), 500
+    
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=False)
