@@ -13,20 +13,16 @@
 
         <form id="upload-form" enctype="multipart/form-data">
             <div class="file-upload-container">
-                <h3>Upload de Mídia Visual</h3>
+                <h3>Upload de Mídia Visual ou Áudio</h3>
                 <input type="file" 
                        id="media-upload" 
                        name="media" 
-                       accept="image/*,video/*,.gif">
-                <p class="file-types">Formatos aceitos: imagens, vídeos, GIFs</p>
+                       accept="image/*,video/*,audio/*,.gif">
+                <p class="file-types">Formatos aceitos: imagens, vídeos, áudios, GIFs</p>
             </div>
             <button type="submit">Fazer Upload</button>
         </form>
-
         <div id="upload-status"></div>
-
-        <!-- Exibindo contador de uploads -->
-        <p>Uploads realizados: <span id="upload-counter">0</span></p>
     </div>
 
     <script>
@@ -34,9 +30,6 @@
         if (!token) {
             window.location.href = '/login';
         }
-
-        // Inicializando contador de uploads
-        let uploadCount = 0;
 
         document.getElementById('upload-form').addEventListener('submit', async (event) => {
             event.preventDefault();
@@ -65,8 +58,6 @@
 
                 if (response.ok) {
                     statusDiv.textContent = 'Upload concluído com sucesso!';
-                    uploadCount++;  // Incrementando o contador de uploads
-                    document.getElementById('upload-counter').textContent = uploadCount; // Atualizando contador na interface
                     setTimeout(() => {
                         window.location.href = '/dashboard';
                     }, 1500);
@@ -75,13 +66,13 @@
                 }
             } catch (error) {
                 console.error('Erro:', error);
-                statusDiv.textContent = 'Erro de conexão ao enviar arquivo';
+                statusDiv.textContent = 'Erro de conexão com o servidor';
             }
         });
 
         document.getElementById('media-upload').addEventListener('change', function(e) {
             const fileName = e.target.files[0]?.name || 'Nenhum arquivo selecionado';
-            e.target.parentElement.querySelector('.file-types').textContent = `Arquivo de mídia: ${fileName}`;
+            e.target.parentElement.querySelector('.file-types').textContent = `Arquivo selecionado: ${fileName}`;
         });
     </script>
 </body>
