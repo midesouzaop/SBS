@@ -38,7 +38,8 @@ check_ffmpeg_installed()
 # Configurações
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
-app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
+#app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
+app.config['MAX_CONTENT_LENGTH'] = 500 * 1024 * 1024  # 500 MB
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'default_secret_key')
 db = SQLAlchemy(app)
 limiter = Limiter(key_func=get_remote_address)
