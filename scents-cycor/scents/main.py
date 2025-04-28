@@ -533,7 +533,13 @@ def list_uploads(current_user):
 #from flask import Flask, request, jsonify
 #from werkzeug.utils import secure_filename
 #import os
-import moviepy.editor as mp  # para checar duração dos vídeos
+#import moviepy.editor as mp  # para checar duração dos vídeos
+#from flask import Flask, request, jsonify
+#from werkzeug.utils import secure_filename
+#import os
+
+#app = Flask(__name__)
+#app.config['UPLOAD_FOLDER'] = 'uploads'  # ajuste conforme seu diretório
 
 @app.route('/upload', methods=['POST'])
 @token_required
@@ -545,47 +551,22 @@ def upload_file(current_user):
     if not file or not file.filename:
         return jsonify({'detail': 'Arquivo inválido'}), 400
 
-    # Extensões aceitas
     allowed_extensions = {'png', 'jpg', 'jpeg', 'gif', 'mp4', 'mov', 'avi'}
 
-    # Verifica a extensão
     if '.' not in file.filename or file.filename.rsplit('.', 1)[1].lower() not in allowed_extensions:
         return jsonify({'detail': 'Tipo de arquivo não permitido. Envie imagens, vídeos ou GIFs'}), 400
 
-    # Verifica o tamanho mínimo de 32MB (32 * 1024 * 1024 bytes)
-    file.seek(0, os.SEEK_END)  # Move para o final
-    file_size = file.tell()    # Pega o tamanho
-    file.seek(0)               # Volta para o início
+    # Verifica o tamanho mínimo de 32MB
+    file.seek(0, os.SEEK_END)
+    file_size = file.tell()
+    file.seek(0)
     if file_size < (32 * 1024 * 1024):
         return jsonify({'detail': 'Arquivo muito pequeno. O tamanho mínimo é 32MB.'}), 400
 
-    # Verifica a duração se for vídeo
-    extension = file.filename.rsplit('.', 1)[1].lower()
-    if extension in {'mp4', 'mov', 'avi'}:
-        temp_path = os.path.join(app.config['UPLOAD_FOLDER'], 'temp_' + secure_filename(file.filename))
-        file.save(temp_path)  # Salva temporariamente para medir duração
-
-        try:
-            clip = mp.VideoFileClip(temp_path)
-            duration = clip.duration  # duração em segundos
-            clip.close()
-            if duration > 30:
-                os.remove(temp_path)  # Apaga o arquivo
-                return jsonify({'detail': 'O vídeo excede a duração máxima de 30 segundos.'}), 400
-        except Exception as e:
-            os.remove(temp_path)
-            print(f"Erro ao verificar duração do vídeo: {e}")
-            return jsonify({'detail': 'Erro ao verificar a duração do vídeo.'}), 500
-
-        # Se passou nas validações, salva definitivamente
-        final_filename = secure_filename(file.filename)
-        final_path = os.path.join(app.config['UPLOAD_FOLDER'], final_filename)
-        os.rename(temp_path, final_path)
-    else:
-        # Se for imagem ou GIF, salva normalmente
-        filename = secure_filename(file.filename)
-        save_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-        file.save(save_path)
+    # Apenas salva
+    filename = secure_filename(file.filename)
+    save_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+    file.save(save_path)
 
     # Salva no banco
     try:
@@ -598,7 +579,6 @@ def upload_file(current_user):
         db.session.rollback()
         print(f"Erro ao salvar no banco: {e}")
         return jsonify({'detail': 'Erro interno ao fazer upload'}), 500
-    
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=False)
