@@ -5,7 +5,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Scents Ads - Upload</title>
     <link rel="stylesheet" href="/static/styles.css">
+    <style>
+        /* Estilos da barra de progresso */
+        #progress-container {
+            display: none;
+            width: 100%;
+            background-color: #ddd;
+            margin-top: 10px;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        #progress-bar {
+            width: 0%;
+            height: 20px;
+            background-color: #4caf50;
+            transition: width 0.4s ease;
+        }
+    </style>
 </head>
+
 <body>
     <div class="container">
         <h1>Upload de Mídia</h1>
@@ -13,16 +31,22 @@
 
         <form id="upload-form" enctype="multipart/form-data">
             <div class="file-upload-container">
-                <h3>Upload de Mídia Visual ou Áudio</h3>
+                <h3>Upload de Mídia Visual</h3>
                 <input type="file" 
                        id="media-upload" 
                        name="media" 
-                       accept="image/*,video/*,audio/*,.gif">
-                <p class="file-types">Formatos aceitos: imagens, vídeos, áudios, GIFs</p>
+                       accept="image/*,video/*,.gif">
+                <p class="file-types">Formatos aceitos: imagens, vídeos, GIFs (máx. 20 segundos para vídeos)</p>
             </div>
             <button type="submit">Fazer Upload</button>
         </form>
+
         <div id="upload-status"></div>
+
+        <!-- Barra de progresso -->
+        <div id="progress-container">
+            <div id="progress-bar"></div>
+        </div>
     </div>
 
     <script>
@@ -35,44 +59,75 @@
             event.preventDefault();
             const statusDiv = document.getElementById('upload-status');
             const mediaFile = document.getElementById('media-upload').files[0];
+            const progressContainer = document.getElementById('progress-container');
+            const progressBar = document.getElementById('progress-bar');
 
             if (!mediaFile) {
                 statusDiv.textContent = 'Selecione um arquivo para enviar.';
                 return;
             }
 
+            // Verificação de duração máxima para vídeos
+            if (mediaFile.type.startsWith('video/')) {
+                const video = document.createElement('video');
+                video.preload = 'metadata';
+
+                video.onloadedmetadata = () => {
+                    window.URL.revokeObjectURL(video.src);
+                    const duration = video.duration;
+                    if (duration > 20) {
+                        statusDiv.textContent = 'O vídeo deve ter no máximo 20 segundos.';
+                        return;
+                    } else {
+                        enviarArquivo(mediaFile, progressContainer, progressBar, statusDiv);
+                    }
+                };
+                video.src = URL.createObjectURL(mediaFile);
+            } else {
+                enviarArquivo(mediaFile, progressContainer, progressBar, statusDiv);
+            }
+        });
+
+        function enviarArquivo(mediaFile, progressContainer, progressBar, statusDiv) {
             const formData = new FormData();
             formData.append('media', mediaFile);
 
-            try {
-                statusDiv.textContent = 'Enviando arquivo...';
-                const response = await fetch('/upload', {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    },
-                    body: formData
-                });
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', '/upload', true);
+            xhr.setRequestHeader('Authorization', `Bearer ${localStorage.getItem('token')}`);
 
-                const result = await response.json();
+            progressContainer.style.display = 'block';
+            progressBar.style.width = '0%';
 
-                if (response.ok) {
+            xhr.upload.addEventListener('progress', (e) => {
+                if (e.lengthComputable) {
+                    const percent = (e.loaded / e.total) * 100;
+                    progressBar.style.width = percent + '%';
+                }
+            });
+
+            xhr.onload = () => {
+                if (xhr.status >= 200 && xhr.status < 300) {
                     statusDiv.textContent = 'Upload concluído com sucesso!';
                     setTimeout(() => {
                         window.location.href = '/dashboard';
                     }, 1500);
                 } else {
-                    statusDiv.textContent = `Erro: ${result.detail || 'Erro ao processar o arquivo'}`;
+                    const response = JSON.parse(xhr.responseText);
+                    statusDiv.textContent = `Erro: ${response.detail || 'Erro ao processar o arquivo'}`;
                 }
-            } catch (error) {
-                console.error('Erro:', error);
-                statusDiv.textContent = 'Erro de conexão com o servidor';
-            }
-        });
+            };
+
+            xhr.onerror = () => {
+                statusDiv.textContent = 'Erro de conexão ao enviar arquivo.';
+            };
+
+            xhr.send(formData);
+        }
 
         document.getElementById('media-upload').addEventListener('change', function(e) {
             const fileName = e.target.files[0]?.name || 'Nenhum arquivo selecionado';
-            e.target.parentElement.querySelector('.file-types').textContent = `Arquivo selecionado: ${fileName}`;
+            e.target.parentElement.querySelector('.file-types').textContent = `Arquivo de mídia: ${fileName}`;
         });
     </script>
 </body>
