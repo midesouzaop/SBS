@@ -485,7 +485,7 @@ def register():
         db.session.add(new_user)
         db.session.commit()
 
-        assunto = "Bem-vindo à nossa plataforma!"
+        assunto = " Bem vindo a SCENTESIA - Tecnologia Scents by Sounds 
         corpo = f"""
 Olá, {data['nome']}!
 
