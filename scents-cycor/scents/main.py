@@ -81,41 +81,34 @@ with app.app_context():
 #import os
 #import subprocess
 
-
-def get_audio_duration(audio_path):
-    with contextlib.closing(wave.open(audio_path, 'r')) as f:
-        frames = f.getnframes()
-        rate = f.getframerate()
-        duration = frames / float(rate)
-        return duration
-
-#def generate_video_with_audio(input_path, audio_path, output_path):
-
-
-def get_audio_duration(audio_path):
-    with contextlib.closing(wave.open(audio_path, 'r')) as f:
-        frames = f.getnframes()
-        rate = f.getframerate()
-        duration = frames / float(rate)
-        return duration
-
-#def generate_video_with_audio(input_path, audio_path, output_path):
-
-#import os
-#import subprocess
 import cv2
 import numpy as np
 import wave
 import contextlib
 import shutil
 import traceback
-
+#def get_audio_duration(audio_path):
 def get_audio_duration(audio_path):
-    with contextlib.closing(wave.open(audio_path, 'r')) as f:
-        frames = f.getnframes()
-        rate = f.getframerate()
-        duration = frames / float(rate)
+    try:
+        import wave
+        import contextlib
+        import subprocess
+
+        # Tenta pegar duração usando ffprobe (melhor)
+        result = subprocess.run(
+            ['ffprobe', '-v', 'error', '-show_entries',
+             'format=duration', '-of',
+             'default=noprint_wrappers=1:nokey=1', audio_path],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT
+        )
+        duration = float(result.stdout)
         return duration
+    except Exception as e:
+        print(f"Erro ao pegar duração do áudio: {str(e)}")
+        return 30.0  # fallback para 30s se der erro
+
+
 
 def generate_video_with_audio(input_path, audio_path, output_path):
     try:
@@ -223,25 +216,7 @@ def generate_video_with_audio(input_path, audio_path, output_path):
         return False
 
 
-def get_audio_duration(audio_path):
-    try:
-        import wave
-        import contextlib
-        import subprocess
 
-        # Tenta pegar duração usando ffprobe (melhor)
-        result = subprocess.run(
-            ['ffprobe', '-v', 'error', '-show_entries',
-             'format=duration', '-of',
-             'default=noprint_wrappers=1:nokey=1', audio_path],
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT
-        )
-        duration = float(result.stdout)
-        return duration
-    except Exception as e:
-        print(f"Erro ao pegar duração do áudio: {str(e)}")
-        return 30.0  # fallback para 30s se der erro
 
 def generate_token(user_id):
     payload = {
