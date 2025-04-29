@@ -112,28 +112,28 @@
     <h2>Cadastro</h2>
     <form id="cadastroForm">
       <label>Nome:</label>
-      <input type="text" id="nome" required>
+      <input type="text" id="nome" placeholder="Digite seu nome" required>
 
       <label>Sobrenome:</label>
-      <input type="text" id="sobrenome" required>
+      <input type="text" id="sobrenome" placeholder="Digite seu sobrenome" required>
 
       <label>Nome Empresarial:</label>
-      <input type="text" id="nomeEmpresarial" required>
+      <input type="text" id="nomeEmpresarial" placeholder="Digite o nome empresarial" required>
 
       <label>Email:</label>
-      <input type="email" id="email" required>
+      <input type="email" id="email" placeholder="Digite seu email" required>
 
-      <label>CPF ou CNPJ:</label>
-      <input type="text" id="cpfCnpj" required>
+      <label>CNPJ:</label>
+      <input type="text" id="cpfCnpj" placeholder="Digite o CNPJ (apenas números)" required pattern="\d{14}">
 
       <label>WhatsApp:</label>
-      <input type="text" id="whatsapp" required>
+      <input type="text" id="whatsapp" placeholder="Digite o WhatsApp (apenas números)" required pattern="\d{11}">
 
       <label>Nome de Usuário:</label>
-      <input type="text" id="username" required>
+      <input type="text" id="username" placeholder="Escolha um nome de usuário" required>
 
       <label>Senha:</label>
-      <input type="password" id="senha" required>
+      <input type="password" id="senha" placeholder="Digite uma senha" required>
 
       <label>Aroma:</label>
       <select id="aroma" required>
