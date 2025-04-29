@@ -544,7 +544,7 @@ def register():
             nome_fantasia=nome_fantasia,
             password_hash=hashed_password,
             whatsapp=data.get('whatsapp', ''),
-            aroma=data['aroma'] 
+            aroma=data['aroma'], 
             plano=plano_nome,
             limite_uploads=limite
         )
