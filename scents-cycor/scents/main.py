@@ -101,8 +101,8 @@ def get_audio_duration(audio_path):
 
 #def generate_video_with_audio(input_path, audio_path, output_path):
 
-import os
-import subprocess
+#import os
+#import subprocess
 import cv2
 import numpy as np
 import wave
