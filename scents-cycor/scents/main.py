@@ -60,6 +60,7 @@ class User(db.Model):
     nome_fantasia = db.Column(db.String(120))
     plano = db.Column(db.String(50))  # Novo campo
     limite_uploads = db.Column(db.Integer, default=0)  # Novo campo
+    aroma = db.Column(db.String(100))
     generated_files = db.relationship('GeneratedFile', backref='user', lazy=True)
 
 class GeneratedFile(db.Model):
@@ -503,7 +504,7 @@ def dashboard_page():
 def register():
     try:
         data = request.get_json()
-        required_fields = ['nome', 'sobrenome', 'email', 'cpf_cnpj', 'username', 'password', 'nome_fantasia', 'plano']
+        required_fields = ['nome', 'sobrenome', 'email', 'cpf_cnpj', 'username', 'password', 'nome_fantasia', 'plano', 'aroma']
 
         if not data or not all(field in data for field in required_fields):
             return jsonify({'message': 'Dados inválidos'}), 400
@@ -543,6 +544,7 @@ def register():
             nome_fantasia=nome_fantasia,
             password_hash=hashed_password,
             whatsapp=data.get('whatsapp', ''),
+            aroma=data['aroma'] 
             plano=plano_nome,
             limite_uploads=limite
         )
