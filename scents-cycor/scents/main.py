@@ -57,7 +57,9 @@ class User(db.Model):
     password_hash = db.Column(db.String(128), nullable=False)
     whatsapp = db.Column(db.String(20))
     file_count = db.Column(db.Integer, default=0)
-    nome_fantasia = db.Column(db.String(120))
+    nome_fantasia = db.Column(db.String(120)),
+    plano = db.Column(db.String(50))  # Novo campo
+    limite_uploads = db.Column(db.Integer, default=0)  # Novo campo
     generated_files = db.relationship('GeneratedFile', backref='user', lazy=True)
 
 class GeneratedFile(db.Model):
@@ -487,11 +489,21 @@ def enviar_email(destinatario, assunto, corpo):
         print(f"Erro ao enviar e-mail: {erro}")
 
 
+
+
+@app.route('/upload')
+def upload_page():
+    return send_from_directory('.', 'upload.html')
+
+@app.route('/dashboard')
+def dashboard_page():
+    return send_from_directory('.', 'dashboard.html')
+
 @app.route('/register', methods=['POST'])
 def register():
     try:
         data = request.get_json()
-        required_fields = ['nome', 'sobrenome', 'email', 'cpf_cnpj', 'username', 'password', 'nome_fantasia']
+        required_fields = ['nome', 'sobrenome', 'email', 'cpf_cnpj', 'username', 'password', 'nome_fantasia', 'plano']
 
         if not data or not all(field in data for field in required_fields):
             return jsonify({'message': 'Dados inválidos'}), 400
@@ -499,7 +511,6 @@ def register():
         if not email_valido(data['email']):
             return jsonify({'message': 'Formato de e-mail inválido'}), 400
 
-        # Chamada correta à função auxiliar
         cnpj_result = validar_cnpj(data['cpf_cnpj'])
         if not cnpj_result['valid']:
             return jsonify({'message': cnpj_result['message']}), 400
@@ -514,6 +525,15 @@ def register():
         hashed_password = generate_password_hash(data['password'])
         nome_fantasia = data.get('nome_fantasia', '') or cnpj_result['data'].get('nome_fantasia', '')
 
+        planos = {
+            "Plano Experiência": 10,
+            "Plano Básico": 30,
+            "Plano MKT Profissional": 50
+        }
+
+        plano_nome = data.get('plano')
+        limite = planos.get(plano_nome, 0)
+
         new_user = User(
             nome=data['nome'],
             sobrenome=data['sobrenome'],
@@ -522,13 +542,15 @@ def register():
             username=data['username'],
             nome_fantasia=nome_fantasia,
             password_hash=hashed_password,
-            whatsapp=data.get('whatsapp', '')
+            whatsapp=data.get('whatsapp', ''),
+            plano=plano_nome,
+            limite_uploads=limite
         )
 
         db.session.add(new_user)
         db.session.commit()
 
-        assunto = " Bem vindo a SCENTESIA - Tecnologia Scents by Sounds"
+        assunto = "Bem-vindo à SCENTESIA - Tecnologia Scents by Sounds"
         corpo = f"""
 Olá, {data['nome']}!
 
@@ -544,17 +566,6 @@ Email: {data['email']}
     except Exception as e:
         db.session.rollback()
         return jsonify({'message': f'Erro ao registrar: {str(e)}'}), 500
-
-
-@app.route('/upload')
-def upload_page():
-    return send_from_directory('.', 'upload.html')
-
-@app.route('/dashboard')
-def dashboard_page():
-    return send_from_directory('.', 'dashboard.html')
-
-
 
 @app.route('/api-docs')
 def api_docs():
@@ -594,6 +605,9 @@ def list_uploads(current_user):
 @app.route('/upload', methods=['POST'])
 @token_required
 def upload_file(current_user):
+    if current_user.file_count >= current_user.limite_uploads:
+        return jsonify({'message': 'Limite de uploads atingido para o seu plano'}), 403
+
     if 'media' not in request.files:
         return jsonify({'detail': 'Nenhum arquivo enviado'}), 400
 
@@ -605,8 +619,6 @@ def upload_file(current_user):
 
     if '.' not in file.filename or file.filename.rsplit('.', 1)[1].lower() not in allowed_extensions:
         return jsonify({'detail': 'Tipo de arquivo não permitido. Envie imagens, vídeos ou GIFs'}), 400
-
-    # (Removemos a verificação de tamanho mínimo!)
 
     filename = secure_filename(file.filename)
     save_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
