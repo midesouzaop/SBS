@@ -601,7 +601,6 @@ def list_uploads(current_user):
 
 #app = Flask(__name__)
 #app.config['UPLOAD_FOLDER'] = 'uploads'  # ajuste conforme seu diretório
-
 @app.route('/upload', methods=['POST'])
 @token_required
 def upload_file(current_user):
@@ -627,12 +626,13 @@ def upload_file(current_user):
     try:
         new_file = GeneratedFile(filename=filename, user_id=current_user.id)
         db.session.add(new_file)
-        current_user.file_count += 1
+        current_user.file_count += 1  # Atualiza a contagem de arquivos do usuário
         db.session.commit()
         return jsonify({'message': 'Arquivo enviado com sucesso', 'filename': filename})
     except Exception as e:
         db.session.rollback()
         print(f"Erro ao salvar no banco: {e}")
         return jsonify({'detail': 'Erro interno ao fazer upload'}), 500
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=False)
