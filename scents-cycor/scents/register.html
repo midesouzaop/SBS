@@ -140,7 +140,13 @@
         <option value="">Selecione</option>
         <option value="café">Café</option>
       </select>
-
+      <label>Plano:</label>
+      <select id="plano" required>
+         <option value="">Qual plano você escolheu?</option>
+         <option value="Plano Experiência. 10 uploads">Plano Experiência</option>
+         <option value="Plano Básico">Plano Básico. 30 uploads</option>
+         <option value="Plano MKT Profissional">Plano MKT Profissional.50 uploads</option>
+      </select>
       <div class="error" id="erro"></div>
       <button type="submit">Cadastrar</button>
     </form>
@@ -156,7 +162,7 @@
 
   <script>
     const cnaesBloqueados = ["6319400", "7319001", "7312702", "9001901", "9001902", "9001904"];
-
+    //const plano = document.getElementById("plano").value;
     document.getElementById("cadastroForm").addEventListener("submit", async function(e) {
       e.preventDefault();
 
@@ -169,7 +175,7 @@
       const username = document.getElementById("username").value.trim();
       const senha = document.getElementById("senha").value.trim();
       const aroma = document.getElementById("aroma").value;
-
+      const plano = document.getElementById("plano").value;
       const erro = document.getElementById("erro");
 
       if (!nome || !sobrenome || !nomeEmpresarial || !email || !cpfCnpj || !whatsapp || !username || !senha || !aroma) {
@@ -206,7 +212,8 @@
         username,
         password: senha,
         nome_fantasia: nomeEmpresarial,
-        aroma
+        aroma,
+        plano
       };
 
       const res = await fetch('/register', {
