@@ -37,6 +37,11 @@
         #logout-button:hover {
             background-color: #ff1a1a;
         }
+        #upload-counter {
+            margin-top: 20px;
+            font-weight: bold;
+            color: #333;
+        }
     </style>
 </head>
 <body>
@@ -61,6 +66,8 @@
         </div>
 
         <div id="upload-status" class="warning"></div>
+        
+        <div id="upload-counter">Uploads realizados: 0</div>
 
         <button id="logout-button">Logout</button>
     </div>
@@ -74,6 +81,10 @@
         if (!token) {
             window.location.href = '/login';
         }
+
+        let uploadCount = parseInt(localStorage.getItem('uploadCount')) || 0;
+        const uploadCounterDiv = document.getElementById('upload-counter');
+        uploadCounterDiv.textContent = `Uploads realizados: ${uploadCount}`;
 
         document.getElementById('upload-form').addEventListener('submit', (event) => {
             event.preventDefault();
@@ -131,6 +142,9 @@
             xhr.onload = () => {
                 if (xhr.status === 200) {
                     statusDiv.textContent = 'Upload concluído com sucesso!';
+                    uploadCount++;
+                    localStorage.setItem('uploadCount', uploadCount);
+                    uploadCounterDiv.textContent = `Uploads realizados: ${uploadCount}`;
                     setTimeout(() => {
                         window.location.href = '/dashboard';
                     }, 1500);
@@ -161,6 +175,7 @@
         // Função de logout
         document.getElementById('logout-button').addEventListener('click', () => {
             localStorage.removeItem('token');
+            localStorage.removeItem('uploadCount');
             window.location.href = '/login';
         });
     </script>
