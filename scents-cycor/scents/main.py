@@ -101,19 +101,35 @@ def get_audio_duration(audio_path):
 
 #def generate_video_with_audio(input_path, audio_path, output_path):
 
+import os
+import subprocess
 import cv2
-from PIL import Image
-#import uuid
 import numpy as np
+import wave
+import contextlib
+import shutil
+import traceback
+
+def get_audio_duration(audio_path):
+    with contextlib.closing(wave.open(audio_path, 'r')) as f:
+        frames = f.getnframes()
+        rate = f.getframerate()
+        duration = frames / float(rate)
+        return duration
 
 def generate_video_with_audio(input_path, audio_path, output_path):
     try:
+        print(f"[INFO] Input path: {input_path}")
+        print(f"[INFO] Audio path: {audio_path}")
+        print(f"[INFO] Output path: {output_path}")
+
         if not os.path.exists(input_path):
             raise Exception(f"Arquivo de entrada não encontrado: {input_path}")
         if not os.path.exists(audio_path):
             raise Exception(f"Arquivo de áudio não encontrado: {audio_path}")
 
-        # Detecta o tipo de arquivo
+        os.makedirs(os.path.dirname(output_path), exist_ok=True)
+
         ext = os.path.splitext(input_path)[-1].lower()
         is_image = ext in ['.jpg', '.jpeg', '.png', '.bmp']
         is_gif = ext == '.gif'
@@ -122,7 +138,7 @@ def generate_video_with_audio(input_path, audio_path, output_path):
         temp_video = output_path + '.temp.mp4'
 
         if is_image:
-            # Se for imagem estática
+            print("[INFO] Processando imagem estática")
             img = cv2.imread(input_path)
             if img is None:
                 raise Exception("Erro ao carregar imagem")
@@ -136,45 +152,76 @@ def generate_video_with_audio(input_path, audio_path, output_path):
 
             fourcc = cv2.VideoWriter_fourcc(*'mp4v')
             out = cv2.VideoWriter(temp_video, fourcc, 24.0, (width, height))
-
             for _ in range(720):  # 30 segundos a 24 fps
                 out.write(img)
-
             out.release()
             cv2.destroyAllWindows()
 
         elif is_gif:
-            # Se for GIF animado
-            clip_duration = get_audio_duration(audio_path)  # Duraçao do áudio em segundos
-            os.system(f'ffmpeg -y -i "{input_path}" -t {clip_duration} -vf "scale=640:-2,fps=24" "{temp_video}"')
+            print("[INFO] Processando GIF animado")
+            clip_duration = get_audio_duration(audio_path)
+            gif_command = [
+                'ffmpeg', '-y', '-i', input_path,
+                '-t', str(clip_duration),
+                '-vf', 'scale=640:-2,fps=24,format=yuv420p',
+                '-c:v', 'libx264',
+                '-preset', 'fast',
+                '-pix_fmt', 'yuv420p',
+                temp_video
+            ]
+            result = subprocess.run(gif_command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            if result.returncode != 0:
+                raise Exception(f"Erro ao processar GIF: {result.stderr.decode()}")
 
         elif is_video:
-            # Se já for vídeo
-            os.system(f'cp "{input_path}" "{temp_video}"')  # Se for Windows, pode precisar de shutil.copy
+            print("[INFO] Processando vídeo existente")
+            try:
+                if os.name == 'nt':
+                    result = subprocess.run(['cmd', '/c', 'copy', input_path, temp_video], stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+                else:
+                    result = subprocess.run(['cp', input_path, temp_video], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                
+                if result.returncode != 0:
+                    raise Exception("Subprocess copy falhou, tentando shutil.copy()")
+            except:
+                print("[INFO] Usando shutil.copy como fallback")
+                shutil.copy(input_path, temp_video)
 
         else:
             raise Exception(f"Tipo de arquivo não suportado: {ext}")
 
-        # Agora combina vídeo e áudio
-        command = [
-            'ffmpeg', '-y', '-i', temp_video, '-i', audio_path,
-            '-c:v', 'copy', '-c:a', 'aac', '-shortest', output_path
+        print("[INFO] Combinando vídeo e áudio")
+        combine_command = [
+            'ffmpeg', '-y',
+            '-i', temp_video,
+            '-i', audio_path,
+            '-c:v', 'libx264',
+            '-preset', 'fast',
+            '-pix_fmt', 'yuv420p',
+            '-c:a', 'aac',
+            '-b:a', '192k',
+            '-movflags', '+faststart',
+            '-shortest',
+            output_path
         ]
-        result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-
+        result = subprocess.run(combine_command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         if result.returncode != 0:
-            raise Exception(f"Erro no ffmpeg: {result.stderr.decode()}")
+            raise Exception(f"Erro ao combinar vídeo e áudio: {result.stderr.decode()}")
 
-        os.remove(temp_video)
+        if os.path.exists(temp_video):
+            os.remove(temp_video)
 
         if not os.path.exists(output_path):
             raise Exception("Arquivo de saída não gerado")
 
+        print("[SUCESSO] Vídeo gerado com sucesso!")
         return True
 
     except Exception as e:
-        print(f"Erro: {str(e)}")
+        print(f"[ERRO] {str(e)}")
+        traceback.print_exc()
         return False
+
 
 def get_audio_duration(audio_path):
     try:
