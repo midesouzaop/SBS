@@ -219,6 +219,8 @@
 
       if (res.ok) {
         alert("Cadastro realizado com sucesso. Dados salvos.");
+        
+        // Após o cadastro, o sistema redireciona para a página de login
         window.location.href = "/login";
       } else {
         erro.textContent = resultado.message || "Erro ao cadastrar.";
