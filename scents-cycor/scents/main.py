@@ -57,7 +57,7 @@ class User(db.Model):
     password_hash = db.Column(db.String(128), nullable=False)
     whatsapp = db.Column(db.String(20))
     file_count = db.Column(db.Integer, default=0)
-    nome_fantasia = db.Column(db.String(120)),
+    nome_fantasia = db.Column(db.String(120))
     plano = db.Column(db.String(50))  # Novo campo
     limite_uploads = db.Column(db.Integer, default=0)  # Novo campo
     generated_files = db.relationship('GeneratedFile', backref='user', lazy=True)
