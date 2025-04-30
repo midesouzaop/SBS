@@ -1,183 +1,194 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SCENTESIA ADS - Upload</title>
-    <link rel="stylesheet" href="/static/styles.css">
-    <style>
-        #progress-container {
-            width: 100%;
-            background-color: #f3f3f3;
-            border-radius: 5px;
-            margin-top: 10px;
-            display: none;
-        }
-        #progress-bar {
-            width: 0%;
-            height: 20px;
-            background-color: #4CAF50;
-            border-radius: 5px;
-            transition: width 0.4s ease;
-        }
-        .warning {
-            color: red;
-            font-weight: bold;
-            margin-top: 10px;
-        }
-        #logout-button {
-            margin-top: 20px;
-            background-color: #ff4d4d;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        #logout-button:hover {
-            background-color: #ff1a1a;
-        }
-        #upload-counter {
-            margin-top: 20px;
-            font-weight: bold;
-            color: #333;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SCENTESIA ADS - Upload</title>
+  <link rel="stylesheet" href="/static/styles.css" />
+  <style>
+    #progress-container {
+      width: 100%;
+      background-color: #f3f3f3;
+      border-radius: 5px;
+      margin-top: 10px;
+      display: none;
+    }
+    #progress-bar {
+      width: 0%;
+      height: 20px;
+      background-color: #4CAF50;
+      border-radius: 5px;
+      transition: width 0.4s ease;
+    }
+    .warning {
+      color: red;
+      font-weight: bold;
+      margin-top: 10px;
+    }
+    #logout-button {
+      margin-top: 20px;
+      background-color: #ff4d4d;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    #logout-button:hover {
+      background-color: #ff1a1a;
+    }
+    #upload-counter {
+      margin-top: 20px;
+      font-weight: bold;
+      color: #333;
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Upload de Mídia</h1>
-        <p>Aplique a tecnologia Scents ao seu conteúdo</p>
+  <div class="container">
+    <h1>Upload de Mídia</h1>
+    <p>Aplique a tecnologia Scents ao seu conteúdo</p>
 
-        <form id="upload-form" enctype="multipart/form-data">
-            <div class="file-upload-container">
-                <h3>Upload de Mídia Visual ou Áudio</h3>
-                <input type="file" 
-                       id="media-upload" 
-                       name="media" 
-                       accept="image/*,video/*,audio/*,.gif">
-                <p class="file-types">Formatos aceitos: imagens, vídeos (máximo 30 segundos), áudios e GIFs</p>
-            </div>
-            <button type="submit">Fazer Upload</button>
-        </form>
+    <form id="upload-form" enctype="multipart/form-data">
+      <div class="file-upload-container">
+        <h3>Upload de Mídia Visual ou Áudio</h3>
+        <input type="file" id="media-upload" name="media" accept="image/*,video/*,audio/*,.gif" />
+        <p class="file-types">Formatos aceitos: imagens, vídeos (máximo 30 segundos), áudios e GIFs</p>
+      </div>
+      <button type="submit">Fazer Upload</button>
+    </form>
 
-        <div id="progress-container">
-            <div id="progress-bar"></div>
-        </div>
-
-        <div id="upload-status" class="warning"></div>
-        
-        <div id="upload-counter">Uploads realizados: 0</div>
-
-        <button id="logout-button">Logout</button>
+    <div id="progress-container">
+      <div id="progress-bar"></div>
     </div>
-    <div class="footer">
-      Contato: <a href="mailto:contato@cycor.com.br" style="color: #444; text-decoration: underline;">contato@cycor.com.br</a><br>
-      &copy; 2025 Cycor Cibernética™ e Scentesia™. Todos os direitos reservados.<br>
-      A API, incluindo seu código, funcionamento e objetivos, são propriedade exclusiva da Cycor Cibernética S.A.™.
-    </div>
-    <script>
-        const token = localStorage.getItem('token');
-        if (!token) {
-            window.location.href = '/login';
+
+    <div id="upload-status" class="warning"></div>
+
+    <div id="upload-counter">Uploads realizados: ...</div>
+
+    <button id="logout-button">Logout</button>
+  </div>
+
+  <div class="footer">
+    Contato:
+    <a href="mailto:contato@cycor.com.br" style="color: #444; text-decoration: underline;">contato@cycor.com.br</a><br />
+    &copy; 2025 Cycor Cibernética™ e Scentesia™. Todos os direitos reservados.<br />
+    A API, incluindo seu código, funcionamento e objetivos, são propriedade exclusiva da Cycor Cibernética S.A.™.
+  </div>
+
+  <script>
+    const token = localStorage.getItem('token');
+    if (!token) {
+      window.location.href = '/login';
+    }
+
+    let uploadCount = 0;
+    const uploadCounterDiv = document.getElementById('upload-counter');
+
+    fetch('/upload-count', {
+      headers: { 'Authorization': `Bearer ${token}` }
+    })
+    .then(response => response.json())
+    .then(data => {
+      uploadCount = data.count || 0;
+      uploadCounterDiv.textContent = `Uploads realizados: ${uploadCount}`;
+    })
+    .catch(() => {
+      uploadCounterDiv.textContent = `Erro ao carregar a contagem de uploads.`;
+    });
+
+    document.getElementById('upload-form').addEventListener('submit', (event) => {
+      event.preventDefault();
+      const statusDiv = document.getElementById('upload-status');
+      const mediaInput = document.getElementById('media-upload');
+      const mediaFile = mediaInput.files[0];
+      const progressContainer = document.getElementById('progress-container');
+      const progressBar = document.getElementById('progress-bar');
+
+      if (!mediaFile) {
+        statusDiv.textContent = 'Selecione um arquivo para enviar.';
+        return;
+      }
+
+      if (mediaFile.type.startsWith('video/')) {
+        const video = document.createElement('video');
+        video.preload = 'metadata';
+
+        video.onloadedmetadata = () => {
+          window.URL.revokeObjectURL(video.src);
+          const duration = video.duration;
+          if (duration > 30) {
+            statusDiv.textContent = 'Erro: O vídeo deve ter no máximo 30 segundos.';
+            return;
+          } else {
+            enviarArquivo(mediaFile, statusDiv, progressContainer, progressBar);
+          }
+        };
+
+        video.src = URL.createObjectURL(mediaFile);
+      } else {
+        enviarArquivo(mediaFile, statusDiv, progressContainer, progressBar);
+      }
+    });
+
+    function enviarArquivo(mediaFile, statusDiv, progressContainer, progressBar) {
+      const formData = new FormData();
+      formData.append('media', mediaFile);
+
+      const xhr = new XMLHttpRequest();
+      xhr.open('POST', '/upload', true);
+      xhr.setRequestHeader('Authorization', `Bearer ${token}`);
+
+      xhr.upload.addEventListener('progress', (e) => {
+        if (e.lengthComputable) {
+          const percentComplete = (e.loaded / e.total) * 100;
+          progressContainer.style.display = 'block';
+          progressBar.style.width = percentComplete + '%';
         }
+      });
 
-        let uploadCount = parseInt(localStorage.getItem('uploadCount')) || 0;
-        const uploadCounterDiv = document.getElementById('upload-counter');
-        uploadCounterDiv.textContent = `Uploads realizados: ${uploadCount}`;
-
-        document.getElementById('upload-form').addEventListener('submit', (event) => {
-            event.preventDefault();
-            const statusDiv = document.getElementById('upload-status');
-            const mediaInput = document.getElementById('media-upload');
-            const mediaFile = mediaInput.files[0];
-            const progressContainer = document.getElementById('progress-container');
-            const progressBar = document.getElementById('progress-bar');
-
-            if (!mediaFile) {
-                statusDiv.textContent = 'Selecione um arquivo para enviar.';
-                return;
-            }
-
-            // Verificar se é vídeo
-            if (mediaFile.type.startsWith('video/')) {
-                const video = document.createElement('video');
-                video.preload = 'metadata';
-
-                video.onloadedmetadata = () => {
-                    window.URL.revokeObjectURL(video.src);
-                    const duration = video.duration;
-                    if (duration > 30) {
-                        statusDiv.textContent = 'Erro: O vídeo deve ter no máximo 30 segundos.';
-                        return;
-                    } else {
-                        // Se ok, enviar
-                        enviarArquivo(mediaFile, statusDiv, progressContainer, progressBar);
-                    }
-                };
-
-                video.src = URL.createObjectURL(mediaFile);
-            } else {
-                // Se não for vídeo, enviar direto
-                enviarArquivo(mediaFile, statusDiv, progressContainer, progressBar);
-            }
-        });
-
-        function enviarArquivo(mediaFile, statusDiv, progressContainer, progressBar) {
-            const formData = new FormData();
-            formData.append('media', mediaFile);
-
-            const xhr = new XMLHttpRequest();
-            xhr.open('POST', '/upload', true);
-            xhr.setRequestHeader('Authorization', `Bearer ${token}`);
-
-            xhr.upload.addEventListener('progress', (e) => {
-                if (e.lengthComputable) {
-                    const percentComplete = (e.loaded / e.total) * 100;
-                    progressContainer.style.display = 'block';
-                    progressBar.style.width = percentComplete + '%';
-                }
-            });
-
-            xhr.onload = () => {
-                if (xhr.status === 200) {
-                    statusDiv.textContent = 'Upload concluído com sucesso!';
-                    uploadCount++;
-                    localStorage.setItem('uploadCount', uploadCount);
-                    uploadCounterDiv.textContent = `Uploads realizados: ${uploadCount}`;
-                    setTimeout(() => {
-                        window.location.href = '/dashboard';
-                    }, 1500);
-                } else {
-                    const result = JSON.parse(xhr.responseText);
-                    statusDiv.textContent = `Erro: ${result.detail || 'Erro ao processar o arquivo'}`;
-                }
-                progressContainer.style.display = 'none';
-                progressBar.style.width = '0%';
-            };
-
-            xhr.onerror = () => {
-                statusDiv.textContent = 'Erro de conexão com o servidor.';
-                progressContainer.style.display = 'none';
-                progressBar.style.width = '0%';
-            };
-
-            xhr.send(formData);
-
-            statusDiv.textContent = 'Enviando arquivo...';
+      xhr.onload = () => {
+        if (xhr.status === 200) {
+          statusDiv.textContent = 'Upload concluído com sucesso!';
+          // Atualiza contagem consultando de novo
+          fetch('/upload-count', {
+            headers: { 'Authorization': `Bearer ${token}` }
+          })
+          .then(response => response.json())
+          .then(data => {
+            uploadCount = data.count || 0;
+            uploadCounterDiv.textContent = `Uploads realizados: ${uploadCount}`;
+          });
+          setTimeout(() => {
+            window.location.href = '/dashboard';
+          }, 1500);
+        } else {
+          const result = JSON.parse(xhr.responseText);
+          statusDiv.textContent = `Erro: ${result.detail || 'Erro ao processar o arquivo'}`;
         }
+        progressContainer.style.display = 'none';
+        progressBar.style.width = '0%';
+      };
 
-        document.getElementById('media-upload').addEventListener('change', function(e) {
-            const fileName = e.target.files[0]?.name || 'Nenhum arquivo selecionado';
-            e.target.parentElement.querySelector('.file-types').textContent = `Arquivo selecionado: ${fileName} (máximo 30s para vídeos)`;
-        });
+      xhr.onerror = () => {
+        statusDiv.textContent = 'Erro de conexão com o servidor.';
+        progressContainer.style.display = 'none';
+        progressBar.style.width = '0%';
+      };
 
-        // Função de logout
-        document.getElementById('logout-button').addEventListener('click', () => {
-            localStorage.removeItem('token');
-            localStorage.removeItem('uploadCount');
-            window.location.href = '/login';
-        });
-    </script>
+      xhr.send(formData);
+      statusDiv.textContent = 'Enviando arquivo...';
+    }
+
+    document.getElementById('media-upload').addEventListener('change', function (e) {
+      const fileName = e.target.files[0]?.name || 'Nenhum arquivo selecionado';
+      e.target.parentElement.querySelector('.file-types').textContent = `Arquivo selecionado: ${fileName} (máximo 30s para vídeos)`;
+    });
+
+    document.getElementById('logout-button').addEventListener('click', () => {
+      localStorage.removeItem('token');
+      window.location.href = '/login';
+    });
+  </script>
 </body>
 </html>
