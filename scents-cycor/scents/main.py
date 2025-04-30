@@ -89,61 +89,7 @@ with app.app_context():
 
 
 
-def generate_video_with_audio(input_path, audio_path, output_path):
-    try:
-        print(f"[INFO] Input path: {input_path}")
-        print(f"[INFO] Audio path: {audio_path}")
-        print(f"[INFO] Output path: {output_path}")
-
-        if not os.path.exists(input_path):
-            raise Exception(f"Arquivo de entrada não encontrado: {input_path}")
-        if not os.path.exists(audio_path):
-            raise Exception(f"Arquivo de áudio não encontrado: {audio_path}")
-
-        os.makedirs(os.path.dirname(output_path), exist_ok=True)
-
-        ext = os.path.splitext(input_path)[-1].lower()
-        is_image = ext in ['.jpg', '.jpeg', '.png', '.bmp']
-        is_gif = ext == '.gif'
-        is_video = ext in ['.mp4', '.avi', '.mov', '.mkv', '.webm']
-
-        temp_video = output_path + '.temp.mp4'
-
-        if is_image:
-            print("[INFO] Processando imagem estática")
-            img = cv2.imread(input_path)
-            if img is None:
-                raise Exception("Erro ao carregar imagem")
-
-            height, width = img.shape[:2]
-            if width > 640:
-                scale = 640 / width
-                width = 640
-                height = int(height * scale)
-                img = cv2.resize(img, (width, height))
-
-            fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-            out = cv2.VideoWriter(temp_video, fourcc, 24.0, (width, height))
-            for _ in range(720):  # 30 segundos a 24 fps
-                out.write(img)
-            out.release()
-            cv2.destroyAllWindows()
-
-        elif is_gif:
-            print("[INFO] Processando GIF animado")
-            clip_duration = get_audio_duration(audio_path)
-            gif_command = [
-                'ffmpeg', '-y', '-i', input_path,
-                '-t', str(clip_duration),
-                '-vf', 'scale=640:-2,fps=24,format=yuv420p',
-                '-c:v', 'libx264',
-                '-preset', 'fast',
-                '-pix_fmt', 'yuv420p',
-                temp_video
-            ]
-            result = subprocess.run(gif_command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            if result.returncode != 0:
-                raise Exception(f"Erro ao processar GIF: {result.stderr.decode()}")
+#def generate_video_with_audio(input_path, audio_path, output_path):
 
 import cv2  
 from PIL import Image  
