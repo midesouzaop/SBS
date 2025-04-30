@@ -59,7 +59,7 @@ class User(db.Model):
     file_count = db.Column(db.Integer, default=0)
     nome_fantasia = db.Column(db.String(120))
     plano = db.Column(db.String(50))  # Novo campo
-    limite_uploads = db.Column(db.Integer, default=0)  # Novo campo
+    limite_uploads = db.Column(db.Integer, default=50)  # Novo campo
     aroma = db.Column(db.String(100))
     generated_files = db.relationship('GeneratedFile', backref='user', lazy=True)
 
