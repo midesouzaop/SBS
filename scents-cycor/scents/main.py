@@ -604,6 +604,9 @@ def upload_file(current_user):
         db.session.rollback()
         print(f"Erro ao salvar no banco: {e}")
         return jsonify({'detail': 'Erro interno ao fazer upload'}), 500
-
+@app.route('/upload-count', methods=['GET'])
+@token_required
+def upload_count(current_user):
+    return jsonify({'count': current_user.file_count})
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=False)
