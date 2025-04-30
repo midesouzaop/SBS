@@ -141,18 +141,21 @@ def generate_video_with_audio(input_path, audio_path, output_path):
             out.release()  
             cv2.destroyAllWindows()  
   
-        elif is_gif:  
-            clip_duration = get_audio_duration(audio_path)  
-            command = [  
-                'ffmpeg', '-y', '-i', input_path,  
-                '-t', str(clip_duration),  
-                '-vf', 'scale=640:-2,fps=24',  
-                '-c:v', 'libx264', '-pix_fmt', 'yuv420p',  
-                temp_video  
-            ]  
-            result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)  
-            if result.returncode != 0:  
-                raise Exception(f"Erro ao converter GIF: {result.stderr.decode()}")  
+        elif is_gif:
+           print("[INFO] Processando GIF animado")
+           clip_duration = get_audio_duration(audio_path)
+           gif_command = [
+             'ffmpeg', '-y', '-i', input_path,
+             '-t', str(clip_duration),
+             '-vf', 'fps=10,scale=640:-2',  # Ajuste de fps e escala
+             '-c:v', 'libx264',
+             '-preset', 'fast',
+             '-pix_fmt', 'yuv420p',
+              temp_video
+             ]
+            result = subprocess.run(gif_command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            if result.returncode != 0:
+               raise Exception(f"Erro ao processar GIF: {result.stderr.decode()}")
   
         elif is_video:  
             import shutil  
