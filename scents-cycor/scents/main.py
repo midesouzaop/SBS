@@ -84,32 +84,8 @@ with app.app_context():
 #import os
 #import subprocess
 
-import cv2
-import numpy as np
-import wave
-import contextlib
-import shutil
-import traceback
-#def get_audio_duration(audio_path):
-def get_audio_duration(audio_path):
-    try:
-        import wave
-        import contextlib
-        import subprocess
 
-        # Tenta pegar duração usando ffprobe (melhor)
-        result = subprocess.run(
-            ['ffprobe', '-v', 'error', '-show_entries',
-             'format=duration', '-of',
-             'default=noprint_wrappers=1:nokey=1', audio_path],
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT
-        )
-        duration = float(result.stdout)
-        return duration
-    except Exception as e:
-        print(f"Erro ao pegar duração do áudio: {str(e)}")
-        return 30.0  # fallback para 30s se der erro
+
 
 
 
@@ -169,53 +145,95 @@ def generate_video_with_audio(input_path, audio_path, output_path):
             if result.returncode != 0:
                 raise Exception(f"Erro ao processar GIF: {result.stderr.decode()}")
 
-        elif is_video:
-            print("[INFO] Processando vídeo existente")
-            try:
-                if os.name == 'nt':
-                    result = subprocess.run(['cmd', '/c', 'copy', input_path, temp_video], stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
-                else:
-                    result = subprocess.run(['cp', input_path, temp_video], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-                
-                if result.returncode != 0:
-                    raise Exception("Subprocess copy falhou, tentando shutil.copy()")
-            except:
-                print("[INFO] Usando shutil.copy como fallback")
-                shutil.copy(input_path, temp_video)
+import cv2  
+from PIL import Image  
+import numpy as np  
+import os  
+import subprocess  
+import wave  
+import contextlib  
 
-        else:
-            raise Exception(f"Tipo de arquivo não suportado: {ext}")
+def get_audio_duration(audio_path):  
+    with contextlib.closing(wave.open(audio_path, 'r')) as f:  
+        frames = f.getnframes()  
+        rate = f.getframerate()  
+        duration = frames / float(rate)  
+    return duration  
 
-        print("[INFO] Combinando vídeo e áudio")
-        combine_command = [
-            'ffmpeg', '-y',
-            '-i', temp_video,
-            '-i', audio_path,
-            '-c:v', 'libx264',
-            '-preset', 'fast',
-            '-pix_fmt', 'yuv420p',
-            '-c:a', 'aac',
-            '-b:a', '192k',
-            '-movflags', '+faststart',
-            '-shortest',
-            output_path
-        ]
-        result = subprocess.run(combine_command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        if result.returncode != 0:
-            raise Exception(f"Erro ao combinar vídeo e áudio: {result.stderr.decode()}")
-
-        if os.path.exists(temp_video):
-            os.remove(temp_video)
-
-        if not os.path.exists(output_path):
-            raise Exception("Arquivo de saída não gerado")
-
-        print("[SUCESSO] Vídeo gerado com sucesso!")
-        return True
-
-    except Exception as e:
-        print(f"[ERRO] {str(e)}")
-        traceback.print_exc()
+def generate_video_with_audio(input_path, audio_path, output_path):  
+    try:  
+        if not os.path.exists(input_path):  
+            raise Exception(f"Arquivo de entrada não encontrado: {input_path}")  
+        if not os.path.exists(audio_path):  
+            raise Exception(f"Arquivo de áudio não encontrado: {audio_path}")  
+  
+        ext = os.path.splitext(input_path)[-1].lower()  
+        is_image = ext in ['.jpg', '.jpeg', '.png', '.bmp']  
+        is_gif = ext == '.gif'  
+        is_video = ext in ['.mp4', '.avi', '.mov', '.mkv', '.webm']  
+  
+        temp_video = output_path + '.temp.mp4'  
+  
+        if is_image:  
+            img = cv2.imread(input_path)  
+            if img is None:  
+                raise Exception("Erro ao carregar imagem")  
+  
+            height, width = img.shape[:2]  
+            if width > 640:  
+                scale = 640 / width  
+                width = 640  
+                height = int(height * scale)  
+                img = cv2.resize(img, (width, height))  
+  
+            fourcc = cv2.VideoWriter_fourcc(*'mp4v')  
+            out = cv2.VideoWriter(temp_video, fourcc, 24.0, (width, height))  
+  
+            for _ in range(720):  # 30 segundos a 24 fps  
+                out.write(img)  
+  
+            out.release()  
+            cv2.destroyAllWindows()  
+  
+        elif is_gif:  
+            clip_duration = get_audio_duration(audio_path)  
+            command = [  
+                'ffmpeg', '-y', '-i', input_path,  
+                '-t', str(clip_duration),  
+                '-vf', 'scale=640:-2,fps=24',  
+                '-c:v', 'libx264', '-pix_fmt', 'yuv420p',  
+                temp_video  
+            ]  
+            result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)  
+            if result.returncode != 0:  
+                raise Exception(f"Erro ao converter GIF: {result.stderr.decode()}")  
+  
+        elif is_video:  
+            import shutil  
+            shutil.copy(input_path, temp_video)  
+  
+        else:  
+            raise Exception(f"Tipo de arquivo não suportado: {ext}")  
+  
+        # Combina vídeo e áudio  
+        command = [  
+            'ffmpeg', '-y', '-i', temp_video, '-i', audio_path,  
+            '-c:v', 'copy', '-c:a', 'aac', '-shortest', output_path  
+        ]  
+        result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)  
+  
+        if result.returncode != 0:  
+            raise Exception(f"Erro no ffmpeg: {result.stderr.decode()}")  
+  
+        os.remove(temp_video)  
+  
+        if not os.path.exists(output_path):  
+            raise Exception("Arquivo de saída não gerado")  
+  
+        return True  
+  
+    except Exception as e:  
+        print(f"Erro: {str(e)}")  
         return False
 
 
