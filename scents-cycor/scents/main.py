@@ -91,71 +91,100 @@ with app.app_context():
 
 #def generate_video_with_audio(input_path, audio_path, output_path):
 
-import os
-import subprocess
+
 import cv2
+from PIL import Image  
+import numpy as np  
+import os  
+import subprocess  
+import wave  
+import contextlib  
 
-def get_audio_duration(audio_path):
-    try:
-        result = subprocess.run(
-            ['ffprobe', '-v', 'error', '-show_entries',
-             'format=duration', '-of',
-             'default=noprint_wrappers=1:nokey=1', audio_path],
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE
-        )
-        return float(result.stdout)
-    except:
-        return 30.0
+def get_audio_duration(audio_path):  
+    with contextlib.closing(wave.open(audio_path, 'r')) as f:  
+        frames = f.getnframes()  
+        rate = f.getframerate()  
+        duration = frames / float(rate)  
+    return duration  
+#def get_audio_duration(audio_path):
+def generate_video_with_audio(input_path, audio_path, output_path):  
+    try:  
+        if not os.path.exists(input_path):  
+            raise Exception(f"Arquivo de entrada não encontrado: {input_path}")  
+        if not os.path.exists(audio_path):  
+            raise Exception(f"Arquivo de áudio não encontrado: {audio_path}")  
 
-def generate_video(input_path, audio_path, output_path):
-    ext = os.path.splitext(input_path)[-1].lower()
-    temp_video = "temp_video.mp4"
-    duration = get_audio_duration(audio_path)
+        ext = os.path.splitext(input_path)[-1].lower()  
+        is_image = ext in ['.jpg', '.jpeg', '.png', '.bmp']  
+        is_gif = ext == '.gif'  
+        is_video = ext in ['.mp4', '.avi', '.mov', '.mkv', '.webm']  
 
-    if ext in ['.jpg', '.jpeg', '.png', '.bmp']:
-        print("[INFO] Criando vídeo a partir de imagem")
-        img = cv2.imread(input_path)
-        height, width = img.shape[:2]
-        fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-        out = cv2.VideoWriter(temp_video, fourcc, 24.0, (width, height))
-        for _ in range(int(duration * 24)):
-            out.write(img)
-        out.release()
+        temp_video = output_path + '.temp.mp4'  
 
-    elif ext == '.gif':
-        print("[INFO] Convertendo GIF para vídeo")
-        subprocess.run([
-            'ffmpeg', '-y', '-i', input_path,
-            '-t', str(duration),
-            '-vf', 'scale=640:-2,fps=24',
-            '-pix_fmt', 'yuv420p',
-            '-c:v', 'libx264',
-            temp_video
-        ])
+        if is_image:  
+            img = cv2.imread(input_path)  
+            if img is None:  
+                raise Exception("Erro ao carregar imagem")  
 
-    elif ext in ['.mp4', '.mov', '.avi', '.webm']:
-        print("[INFO] Copiando vídeo existente")
-        subprocess.run(['cp', input_path, temp_video])
+            height, width = img.shape[:2]  
+            if width > 640:  
+                scale = 640 / width  
+                width = 640  
+                height = int(height * scale)  
+                img = cv2.resize(img, (width, height))  
 
-    else:
-        raise Exception("Tipo de arquivo não suportado.")
+            fourcc = cv2.VideoWriter_fourcc(*'mp4v')  
+            out = cv2.VideoWriter(temp_video, fourcc, 24.0, (width, height))  
 
-    print("[INFO] Combinando com áudio")
-    subprocess.run([
-        'ffmpeg', '-y',
-        '-i', temp_video,
-        '-i', audio_path,
-        '-c:v', 'libx264',
-        '-preset', 'fast',
-        '-c:a', 'aac',
-        '-shortest',
-        output_path
-    ])
+            for _ in range(720):  # 30 segundos a 24 fps  
+                out.write(img)  
 
-    os.remove(temp_video)
-    print("[SUCESSO] Vídeo final gerado:", output_path)
+            out.release()  
+            cv2.destroyAllWindows()  
 
+        elif is_gif:
+            print("[INFO] Processando GIF animado")
+            clip_duration = get_audio_duration(audio_path)
+            gif_command = [
+                'ffmpeg', '-y', '-i', input_path,
+                '-t', str(clip_duration),
+                '-vf', 'fps=10,scale=640:-2',  # Ajuste de fps e escala
+                '-c:v', 'libx264',
+                '-preset', 'fast',
+                '-pix_fmt', 'yuv420p',
+                temp_video
+            ]
+            result = subprocess.run(gif_command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            if result.returncode != 0:
+                raise Exception(f"Erro ao processar GIF: {result.stderr.decode()}")
+
+        elif is_video:  
+            import shutil  
+            shutil.copy(input_path, temp_video)  
+
+        else:  
+            raise Exception(f"Tipo de arquivo não suportado: {ext}")  
+
+        # Combina vídeo e áudio  
+        command = [  
+            'ffmpeg', '-y', '-i', temp_video, '-i', audio_path,  
+            '-c:v', 'copy', '-c:a', 'aac', '-shortest', output_path  
+        ]  
+        result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)  
+
+        if result.returncode != 0:  
+            raise Exception(f"Erro no ffmpeg: {result.stderr.decode()}")  
+
+        os.remove(temp_video)  
+
+        if not os.path.exists(output_path):  
+            raise Exception("Arquivo de saída não gerado")  
+
+        return True  
+
+    except Exception as e:  
+        print(f"Erro: {str(e)}")  
+        return False
 
 
 
