@@ -527,8 +527,6 @@ def upload_page():
 def dashboard_page():
     return send_from_directory('.', 'dashboard.html')
 
-@app.route('/register', methods=['POST'])
-def
 
 @app.route('/api-docs')
 def api_docs():
