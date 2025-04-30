@@ -449,15 +449,6 @@ def enviar_email(destinatario, assunto, corpo):
 
 
 
-
-@app.route('/upload')
-def upload_page():
-    return send_from_directory('.', 'upload.html')
-
-@app.route('/dashboard')
-def dashboard_page():
-    return send_from_directory('.', 'dashboard.html')
-
 @app.route('/register', methods=['POST'])
 def register():
     try:
@@ -484,14 +475,16 @@ def register():
         hashed_password = generate_password_hash(data['password'])
         nome_fantasia = data.get('nome_fantasia', '') or cnpj_result['data'].get('nome_fantasia', '')
 
-        planos = {
-            "Plano Experiência": 10,
-            "Plano Básico": 30,
-            "Plano MKT Profissional": 50
-        }
+        plano = data.get('plano')
 
-        plano_nome = data.get('plano')
-        limite = planos.get(plano_nome, 0)
+        if plano == "Plano Experiência":
+            limite_uploads = 10
+        elif plano == "Plano Básico":
+            limite_uploads = 30
+        elif plano == "Plano MKT Profissional":
+            limite_uploads = 50
+        else:
+            limite_uploads = 10  # valor padrão de segurança
 
         new_user = User(
             nome=data['nome'],
@@ -503,8 +496,8 @@ def register():
             password_hash=hashed_password,
             whatsapp=data.get('whatsapp', ''),
             aroma=data['aroma'], 
-            plano=plano_nome,
-            limite_uploads=limite
+            plano=plano,
+            limite_uploads=limite_uploads
         )
 
         db.session.add(new_user)
@@ -526,6 +519,16 @@ Email: {data['email']}
     except Exception as e:
         db.session.rollback()
         return jsonify({'message': f'Erro ao registrar: {str(e)}'}), 500
+@app.route('/upload')
+def upload_page():
+    return send_from_directory('.', 'upload.html')
+
+@app.route('/dashboard')
+def dashboard_page():
+    return send_from_directory('.', 'dashboard.html')
+
+@app.route('/register', methods=['POST'])
+def
 
 @app.route('/api-docs')
 def api_docs():
