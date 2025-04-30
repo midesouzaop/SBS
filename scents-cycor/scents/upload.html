@@ -51,7 +51,7 @@
 
     <form id="upload-form" enctype="multipart/form-data">
       <div class="file-upload-container">
-        <h3>Upload de Mídia Visual- Vídeos e Imagens</h3>
+        <h3>Upload de Mídia Visual - Vídeos e Imagens</h3>
         <input type="file" id="media-upload" name="media" accept="image/*,video/*,audio/*,.gif" />
         <p class="file-types">Formatos aceitos: imagens e vídeos (máximo 30 segundos)</p>
       </div>
@@ -150,7 +150,6 @@
       xhr.onload = () => {
         if (xhr.status === 200) {
           statusDiv.textContent = 'Upload concluído com sucesso!';
-          // Atualiza contagem consultando de novo
           fetch('/upload-count', {
             headers: { 'Authorization': `Bearer ${token}` }
           })
@@ -162,6 +161,9 @@
           setTimeout(() => {
             window.location.href = '/dashboard';
           }, 1500);
+        } else if (xhr.status === 403) {
+          alert('Você atingiu o limite de uploads do seu plano. Para continuar, atualize seu plano.');
+          statusDiv.textContent = 'Limite de uploads atingido.';
         } else {
           const result = JSON.parse(xhr.responseText);
           statusDiv.textContent = `Erro: ${result.detail || 'Erro ao processar o arquivo'}`;
