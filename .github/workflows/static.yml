@@ -1,4 +1,4 @@
-# Deploy the Do Zero a S.A. frontend from its isolated platform branch.
+# Deploy the personal Do Zero a S.A. workspace from its isolated platform branch.
 name: Deploy Do Zero a S.A. to Pages
 
 on:
