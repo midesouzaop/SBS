@@ -56,13 +56,13 @@
     const panel = document.createElement("div");
     panel.id = "localLibrary";
     panel.style.cssText = "margin-top:20px;text-align:left";
-    panel.innerHTML = '<div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap"><strong style="font-size:14px">Biblioteca salva neste dispositivo</strong><button type="button" class="close" id="clearLocal">Apagar biblioteca local</button></div><p style="font-size:12px;color:#a2adbd;margin:5px 0 12px">Os arquivos permanecem neste navegador e não são enviados para a nuvem. Evite limpar os dados do navegador enquanto precisar deles.</p><div id="savedFiles" class="file-list"></div><div style="height:1px;background:#293242;margin:22px 0"></div><strong style="font-size:14px">Projetos preparados</strong><div id="savedProjects" class="file-list"></div>';
+    panel.innerHTML = '<div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap"><strong style="font-size:14px">Minha biblioteca neste dispositivo</strong><button type="button" class="close" id="clearLocal">Apagar biblioteca local</button></div><p style="font-size:12px;color:#a2adbd;margin:5px 0 12px">Meus arquivos ficam armazenados neste navegador e não são enviados à nuvem. Não limpe os dados do navegador enquanto precisar deles.</p><div id="savedFiles" class="file-list"></div><div style="height:1px;background:#293242;margin:22px 0"></div><strong style="font-size:14px">Projetos preparados</strong><div id="savedProjects" class="file-list"></div>';
     zone.appendChild(panel);
     $("clearLocal").addEventListener("click", async () => {
-      if (!confirm("Apagar os arquivos e projetos salvos apenas neste dispositivo? Esta ação não pode ser desfeita.")) return;
+      if (!confirm("Apagar meus arquivos e projetos salvos neste dispositivo? Esta ação não pode ser desfeita.")) return;
       await Promise.all([clearStore("assets"), clearStore("projects")]);
       await render();
-      if (typeof showToast === "function") showToast("Biblioteca local apagada.");
+      if (typeof showToast === "function") showToast("Meus arquivos locais foram apagados.");
     });
   }
   function clearStore(store) {
@@ -79,14 +79,14 @@
     const filesEl = $("savedFiles");
     const projectsEl = $("savedProjects");
     if (!filesEl || !projectsEl) return;
-    filesEl.innerHTML = assets.length ? "" : '<p style="font-size:12px;color:#a2adbd">Nenhum material salvo ainda.</p>';
+    filesEl.innerHTML = assets.length ? "" : '<p style="font-size:12px;color:#a2adbd">Ainda não salvei materiais neste dispositivo.</p>';
     assets.sort((a,b)=>b.addedAt-a.addedAt).forEach(item => {
       const row = document.createElement("div");
       row.className = "file-row";
       row.innerHTML = '<span style="min-width:0;overflow-wrap:anywhere"><strong>'+esc(item.name)+'</strong><br><small style="color:#a2adbd">'+esc(typeOf({name:item.name,type:item.type||""}))+' · '+bytes(item.size)+' · '+new Date(item.addedAt).toLocaleDateString("pt-BR")+'</small></span><button type="button" class="close" data-delete-file="'+esc(item.id)+'">Excluir</button>';
       filesEl.appendChild(row);
     });
-    projectsEl.innerHTML = projects.length ? "" : '<p style="font-size:12px;color:#a2adbd">Nenhum projeto preparado ainda.</p>';
+    projectsEl.innerHTML = projects.length ? "" : '<p style="font-size:12px;color:#a2adbd">Ainda não preparei projetos neste dispositivo.</p>';
     projects.sort((a,b)=>b.createdAt-a.createdAt).forEach(item => {
       const row = document.createElement("div");
       row.className = "file-row";
