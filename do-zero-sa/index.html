@@ -73,5 +73,5 @@ document.getElementById('profileBtn').addEventListener('click',()=>showToast('A 
 document.getElementById('modal').addEventListener('click',e=>{if(e.target.id==='modal')closeUpload()});
 const dropzone=document.getElementById('dropzone');dropzone.addEventListener('dragover',e=>{e.preventDefault();dropzone.style.borderColor='#a9b9ff'});dropzone.addEventListener('dragleave',()=>dropzone.style.borderColor='#6577aa80');dropzone.addEventListener('drop',e=>{e.preventDefault();dropzone.style.borderColor='#6577aa80';if(e.dataTransfer.files.length){showToast('Arquivos reconhecidos visualmente. Use “Selecionar arquivos” para ver a fila nesta prévia.')}})
 </script>
-<script src="./app.js"></script>\n<script>if ("serviceWorker" in navigator && (location.protocol === "https:" || location.hostname === "localhost")) navigator.serviceWorker.register("./sw.js").catch(console.error);</script>\n</body>
+<script src="./config.js"></script>\n<script src="./app.js"></script>\n<script src="./remote.js"></script>\n<script>if ("serviceWorker" in navigator && (location.protocol === "https:" || location.hostname === "localhost")) navigator.serviceWorker.register("./sw.js").catch(console.error);</script>\n</body>
 </html>
