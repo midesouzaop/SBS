@@ -1,4 +1,4 @@
-# Publish updated Do Zero a S.A. public page and restore intended public catalog layout and clear stale cached content.
+# Publish updated Do Zero a S.A. public page and restore intended public catalog layout and clear stale cached content; restore cinematic streaming-style catalog visuals.
 name: Deploy Do Zero a S.A. to Pages
 
 on:
