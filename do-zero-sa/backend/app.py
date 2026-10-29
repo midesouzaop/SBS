@@ -97,7 +97,8 @@ def login():
     session.permanent = True
     session["is_admin"] = True
     session["username"] = username_config
-    return jsonify(authenticated=True, username=username_config)
+    session["csrf_token"] = uuid.uuid4().hex + uuid.uuid4().hex
+    return jsonify(authenticated=True, username=username_config, csrfToken=session["csrf_token"])
 
 @app.post("/api/logout")
 def logout():
