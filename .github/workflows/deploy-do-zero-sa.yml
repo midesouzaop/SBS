@@ -1,0 +1,44 @@
+name: Validate Do Zero a S.A. site
+
+on:
+  push:
+    branches:
+      - feat/do-zero-sa-platform
+    paths:
+      - "do-zero-sa/**"
+      - ".github/workflows/deploy-do-zero-sa.yml"
+  pull_request:
+    paths:
+      - "do-zero-sa/**"
+      - ".github/workflows/deploy-do-zero-sa.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: validate-do-zero-sa
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Verify public and access pages
+        run: |
+          test -s do-zero-sa/index.html
+          test -s do-zero-sa/login.html
+          test -s do-zero-sa/membros.html
+          test -s do-zero-sa/admin.html
+      - name: Verify application scripts
+        run: |
+          test -s do-zero-sa/admin.js
+          test -s do-zero-sa/config.js
+      - name: Verify navigation targets
+        run: |
+          grep -q 'login.html' do-zero-sa/index.html
+          grep -q 'membros.html' do-zero-sa/index.html
+          grep -q 'admin.html' do-zero-sa/index.html
+          grep -q 'admin.js' do-zero-sa/admin.html

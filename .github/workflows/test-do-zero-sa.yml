@@ -1,0 +1,39 @@
+name: Test Do Zero a S.A. API
+on:
+  push:
+    branches:
+      - feat/do-zero-sa-platform
+    paths:
+      - "do-zero-sa/**"
+      - ".github/workflows/test-do-zero-sa.yml"
+  pull_request:
+    paths:
+      - "do-zero-sa/backend/**"
+      - ".github/workflows/test-do-zero-sa.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: do-zero-sa/backend
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Run API tests
+        run: python -m unittest test_app.py -v
+      - name: Check frontend JavaScript syntax
+        working-directory: do-zero-sa
+        run: |
+          node --check app.js
+          node --check remote.js
+          node --check config.js
+          node --check sw.js

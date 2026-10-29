@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#07090d">
+<meta name="description" content="Do Zero a S.A. — conteúdos, aulas e ideias para transformar conhecimento em ação.">
+<link rel="manifest" href="./manifest.webmanifest">
+<title>Do Zero a S.A. — Conhecimento em movimento</title>
+<style>
+:root{color-scheme:dark;--bg:#0d1117;--panel:#151b25;--text:#f3f5f8;--muted:#a2adbd;--blue:#91a5ff;--violet:#b4a1ff;--line:#293242}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 Inter,system-ui,-apple-system,"Segoe UI",sans-serif}button,a{font:inherit}a{color:inherit;text-decoration:none}.shell{max-width:1300px;margin:auto;padding:0 26px}.topbar{height:76px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #ffffff12}.brand{font-size:21px;font-weight:850;letter-spacing:-.7px}.brand span{color:var(--blue)}.nav{display:flex;align-items:center;gap:22px;color:var(--muted)}.nav a:hover{color:white}.btn{display:inline-flex;align-items:center;justify-content:center;padding:11px 17px;border-radius:999px;border:1px solid #39445a;background:#ffffff08;color:#fff;font-weight:700}.btn.primary{border:0;color:#0b1018;background:linear-gradient(115deg,#b6c4ff,#9b9fff 55%,#c7b9ff)}.hero{margin:24px 0 42px;min-height:430px;border:1px solid #ffffff12;border-radius:26px;overflow:hidden;display:flex;align-items:center;background:radial-gradient(ellipse at 78% 24%,#667cff55,transparent 28%),radial-gradient(ellipse at 88% 78%,#9b7bff35,transparent 34%),linear-gradient(115deg,#10151e 0%,#182238 52%,#10151e 100%)}.hero-copy{max-width:670px;padding:clamp(26px,5vw,58px)}.eyebrow{color:#b7c4ff;text-transform:uppercase;letter-spacing:2px;font-size:11px;font-weight:850}.hero h1{font-size:clamp(39px,5.7vw,68px);line-height:1.01;letter-spacing:-2.5px;margin:14px 0}.hero p{max-width:500px;color:#c0c9d6;font-size:17px}.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:23px}.section{margin:42px 0}.section-head{display:flex;justify-content:space-between;align-items:end;gap:15px;margin-bottom:18px}.section h2{font-size:23px;letter-spacing:-.6px;margin:0}.section-head p{margin:4px 0 0;color:var(--muted);font-size:13px}.cards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:15px}.card{background:var(--panel);border:1px solid #ffffff12;border-radius:16px;overflow:hidden;min-width:0}.art{height:150px;display:flex;align-items:end;padding:14px;background:radial-gradient(circle at 70% 25%,#7b8dff77,transparent 30%),linear-gradient(135deg,#29334b,#151b25 72%);position:relative}.art:after{content:"";position:absolute;inset:35% 0 0;background:linear-gradient(0deg,#111720,transparent)}.art span{z-index:1;font-size:11px;text-transform:uppercase;letter-spacing:1.2px;color:#dce3ff;font-weight:800}.card-body{padding:15px}.card h3{margin:0 0 6px;font-size:16px}.card p{margin:0;color:var(--muted);font-size:13px}.lock{display:inline-flex;align-items:center;gap:6px;margin-top:14px;color:#c8cfff;font-size:12px;font-weight:750}.open-label{display:inline-flex;margin-top:14px;color:#a4e4c6;font-size:12px;font-weight:750}.membership{padding:30px;border:1px solid #3a4560;border-radius:22px;background:radial-gradient(circle at 100% 0%,#596fc52b,transparent 45%),var(--panel);display:flex;justify-content:space-between;align-items:center;gap:24px}.membership h2{margin:8px 0;font-size:clamp(23px,3vw,34px)}.membership p{color:var(--muted);max-width:640px;margin:0}.footer{padding:28px 0 38px;border-top:1px solid #ffffff12;display:flex;justify-content:space-between;gap:16px;color:#7f8b9d;font-size:12px}.notice{color:#8290a6;font-size:12px;margin-top:10px}
+@media(max-width:850px){.shell{padding:0 17px}.nav{gap:10px}.nav a:not(.btn){display:none}.cards{grid-template-columns:repeat(2,minmax(0,1fr))}.hero{min-height:410px;background-position:60% center}.membership{align-items:flex-start;flex-direction:column}}@media(max-width:480px){.topbar{height:64px}.brand{font-size:18px}.hero{min-height:430px;margin-top:15px}.hero h1{letter-spacing:-1.5px}.hero p{font-size:15px}.art{height:112px;padding:10px}.card-body{padding:11px}.card h3{font-size:14px}.section h2{font-size:20px}.footer{display:block}.footer span{display:block;margin-top:8px}}
+
+/* Catálogo cinematográfico: inspiração em streaming, sem alterar o conteúdo editorial */
+.hero{position:relative;background:radial-gradient(ellipse at 78% 18%,#6f7dff55,transparent 25%),radial-gradient(ellipse at 92% 76%,#a15cff40,transparent 32%),linear-gradient(112deg,#0b0e14 0%,#151d31 54%,#090c12 100%);box-shadow:inset 0 0 90px #080a10aa}
+.hero:after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(90deg,#0b0e14 0%,#0b0e14bb 42%,transparent 100%)}
+.hero-copy{position:relative;z-index:1}
+.cards{display:flex;gap:17px;overflow-x:auto;padding:4px 3px 18px;scroll-snap-type:x mandatory;scrollbar-width:thin;scrollbar-color:#46516b transparent}
+.cards::-webkit-scrollbar{height:6px}.cards::-webkit-scrollbar-thumb{background:#46516b;border-radius:8px}
+.card{flex:0 0 clamp(245px,27%,310px);scroll-snap-align:start;transition:transform .22s ease,border-color .22s ease,box-shadow .22s ease;background:linear-gradient(160deg,#1b2332,#111720 78%);border-color:#ffffff17}
+.card:hover{transform:translateY(-5px);border-color:#8798ff88;box-shadow:0 15px 36px #0007}
+.art{height:190px;overflow:hidden;background:radial-gradient(circle at 72% 25%,#8c9cff99,transparent 28%),linear-gradient(135deg,#303d61,#171d2b 72%)}
+.art:before{content:"";position:absolute;width:155px;height:155px;right:15px;top:-35px;border:1px solid #c5ceff55;border-radius:38% 62% 56% 44%;transform:rotate(28deg);box-shadow:0 0 35px #8997ff20,inset 0 0 35px #8997ff14}
+.card:nth-child(2) .art{background:radial-gradient(circle at 68% 25%,#bb8bff88,transparent 30%),linear-gradient(135deg,#392950,#171522 75%)}
+.card:nth-child(2) .art:before{border-radius:50%;border:20px solid #d0b8ff22;box-shadow:0 0 0 1px #d0b8ff55}
+.card:nth-child(3) .art{background:radial-gradient(circle at 70% 22%,#5ce0d188,transparent 30%),linear-gradient(135deg,#173d45,#121a23 75%)}
+.card:nth-child(3) .art:before{border-radius:8px;transform:rotate(45deg);border-color:#8cf2df55}
+.card:nth-child(4) .art{background:radial-gradient(circle at 70% 22%,#ffb86d88,transparent 30%),linear-gradient(135deg,#513522,#191821 75%)}
+.card:nth-child(4) .art:before{border-radius:12px;transform:rotate(12deg);border-color:#ffd0a055}
+.card-body{padding:17px}
+@media(max-width:850px){.cards{display:flex}.card{flex-basis:clamp(230px,72vw,300px)}.art{height:165px}}
+@media(max-width:480px){.cards{gap:12px}.card{flex-basis:78vw}.art{height:155px}}
+
+
+/* Acabamento premium: paleta noturna, contraste editorial e acento metálico discreto */
+:root{--bg:#07090d;--panel:#101319;--text:#f2f0eb;--muted:#989ba5;--blue:#c3b58a;--violet:#c3b58a;--line:#282722}
+body{background:#07090d;background-image:radial-gradient(ellipse at 50% -20%,#171b25 0%,transparent 52%);font-family:Inter,"Helvetica Neue",Arial,sans-serif}
+.shell{max-width:1380px}
+.topbar{border-bottom-color:#ffffff0d}
+.brand span{color:#c5b88f}
+.nav{color:#a2a3a8}.nav a:hover{color:#e4d6ad}
+.btn{border-radius:5px;border-color:#393a3a;background:#ffffff04;letter-spacing:.15px}
+.btn.primary{color:#0b0c0d;background:#c5b88f}
+.btn.primary:hover{background:#e0d3ac}
+.hero{min-height:500px;margin:22px 0 54px;border-radius:4px;border-color:#ffffff12;background:linear-gradient(90deg,#080a0e 0%,#0a0c11eF 35%,#0b0e15a8 65%,#090b10 100%),radial-gradient(ellipse at 72% 35%,#343b4c 0%,#161b25 28%,#080a0e 70%);box-shadow:none}
+.hero:after{background:linear-gradient(90deg,#07090d 0%,#07090de8 30%,#07090d55 70%,#07090d88 100%)}
+.hero-copy{max-width:760px;padding:clamp(30px,6vw,76px)}
+.eyebrow{color:#c5b88f;letter-spacing:2.5px;font-size:10px}
+.hero h1{max-width:720px;font-size:clamp(42px,6.1vw,76px);font-weight:650;letter-spacing:-2.8px;line-height:.99}
+.hero p{color:#b2b3b8;font-size:16px;max-width:510px}
+.section{margin:54px 0}
+.section h2{font-size:22px;font-weight:620;letter-spacing:-.35px}
+.section-head{margin-bottom:22px}
+.section-head p{color:#858891}
+.cards{gap:14px;scrollbar-color:#48463d transparent}
+.card{background:#0d1015;border:1px solid #ffffff12;border-radius:3px;box-shadow:none}
+.card:hover{transform:translateY(-3px);border-color:#b9aa7b77;box-shadow:0 16px 35px #0008}
+.art{height:205px;background:linear-gradient(145deg,#222936,#11141b 68%,#090b0f);filter:saturate(.55)}
+.art:before{width:170px;height:170px;right:8px;top:-45px;border-color:#c5b88f35;box-shadow:0 0 45px #c5b88f0b,inset 0 0 35px #c5b88f08}
+.art:after{background:linear-gradient(0deg,#0d1015 0%,#0d101588 22%,transparent 75%)}
+.art span{color:#d5cba9;font-size:10px;letter-spacing:1.6px}
+.card:nth-child(2) .art{background:linear-gradient(145deg,#28252c,#111217 70%,#090a0d)}
+.card:nth-child(2) .art:before{border-color:#c5b88f30;box-shadow:0 0 0 1px #c5b88f22}
+.card:nth-child(3) .art{background:linear-gradient(145deg,#1d2929,#111519 70%,#090b0e)}
+.card:nth-child(3) .art:before{border-color:#b7c2ad35}
+.card:nth-child(4) .art{background:linear-gradient(145deg,#2d2820,#131416 70%,#090b0e)}
+.card:nth-child(4) .art:before{border-color:#c5b88f35}
+.card-body{padding:18px 17px 20px}
+.card h3{font-weight:620;letter-spacing:-.2px}
+.card p{color:#92959d}
+.lock{color:#c5b88f}.open-label{color:#b7c4b0}
+.membership{border:1px solid #39372f;border-radius:4px;background:linear-gradient(105deg,#111318,#0c0e12 75%);padding:clamp(24px,4vw,42px)}
+.membership h2{font-weight:620}.membership p{color:#a1a3aa}
+.notice{color:#737780}
+.footer{border-top-color:#ffffff10;color:#737780}
+@media(max-width:850px){.hero{min-height:450px}.art{height:180px}}
+@media(max-width:480px){.hero{min-height:440px}.hero h1{letter-spacing:-1.8px}.art{height:160px}.card-body{padding:15px}.section{margin:42px 0}}
+
+
+/* Fotografia real da fundadora e materiais enviados pela Michele: a imagem lidera, a interface acompanha */
+.hero{background-image:linear-gradient(90deg,#07090df7 0%,#07090de8 30%,#07090d99 58%,#07090d35 100%),linear-gradient(0deg,#07090d66,transparent 55%),url("https://i.postimg.cc/5jQhG0jx/BANNER-MI-02-1320x660.png");background-size:cover;background-position:center 38%}
+.art{position:relative;isolation:isolate;background:#101319;filter:none}
+.art img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;opacity:.78;filter:saturate(.72) contrast(1.04);transition:transform .5s ease,opacity .35s ease}
+.art:before{z-index:0;pointer-events:none}
+.art:after{z-index:0;background:linear-gradient(0deg,#0b0d12 0%,#0b0d12a8 20%,#0b0d1230 60%,#07090d20 100%)}
+.art span{position:relative;z-index:2;text-shadow:0 2px 12px #000}
+.card:hover .art img{transform:scale(1.055);opacity:.95}
+.card:nth-child(2) .art,.card:nth-child(3) .art,.card:nth-child(4) .art{background:#101319}
+.card:nth-child(2) .art:before,.card:nth-child(3) .art:before,.card:nth-child(4) .art:before{display:none}
+.membership{position:relative;overflow:hidden;background:linear-gradient(90deg,#0b0d11f5 0%,#0b0d11e8 50%,#0b0d1180 100%),url("https://i.postimg.cc/BXWrG010/In-Shot-20260322-165054079.jpg") center 38%/cover}
+@media(max-width:600px){.hero{background-position:58% center}.art img{opacity:.86}}
+
+</style>
+</head>
+<body>
+<header class="shell topbar"><a class="brand" href="./index.html">Do Zero <span>a S.A.</span></a><nav class="nav"><a href="#biblioteca">Biblioteca</a><a href="#membros">Área de membros</a><a class="btn" href="./login.html">Entrar</a></nav></header>
+<main class="shell">
+<section class="hero"><div class="hero-copy"><div class="eyebrow">Conhecimento • Ideias • Transformação</div><h1>Conhecimento que sai da ideia e vira ação.</h1><p>Um espaço de conteúdos, aulas e novas perspectivas para quem quer construir, aprender e transformar projetos em realidade.</p><div class="actions"><a class="btn primary" href="#biblioteca">Explorar conteúdos</a><a class="btn" href="./membros.html">Tornar-me membro</a></div></div></section>
+<section class="section" id="biblioteca"><div class="section-head"><div><h2>Explore a biblioteca</h2><p>Os conteúdos públicos ficam disponíveis para todos. Os exclusivos são identificados como conteúdo para membros.</p></div></div>
+<div class="cards">
+<article class="card"><div class="art"><img src="https://i.postimg.cc/3W0s6RW3/1.jpg" alt="" loading="lazy" decoding="async"><span>Conhecimento aplicado</span></div><div class="card-body"><h3>Conteúdos abertos</h3><p>Vídeos, ideias e materiais selecionados para acesso público.</p><span class="open-label">◉ Acesso público</span></div></article>
+<article class="card"><div class="art"><img src="https://i.postimg.cc/tY0KHjVH/1774401377422.png" alt="" loading="lazy" decoding="async"><span>Aulas especiais</span></div><div class="card-body"><h3>Aulas completas</h3><p>Conteúdos aprofundados e organizados por tema.</p><span class="lock">♙ Exclusivo para membros</span></div></article>
+<article class="card"><div class="art"><img src="https://i.postimg.cc/0rKT3Qr5/file-00000000daa0720eae116147ca173b29.png" alt="" loading="lazy" decoding="async"><span>Novas perspectivas</span></div><div class="card-body"><h3>Séries e conteúdos especiais</h3><p>Materiais complementares e séries de aprendizagem.</p><span class="lock">♙ Exclusivo para membros</span></div></article>
+<article class="card"><div class="art"><img src="https://i.postimg.cc/grLC5Jrd/IMG-20260324-225316-833.webp" alt="" loading="lazy" decoding="async"><span>Materiais de apoio</span></div><div class="card-body"><h3>Guias e materiais</h3><p>Conteúdos de apoio para aprofundar os assuntos.</p><span class="lock">♙ Exclusivo para membros</span></div></article>
+</div><p class="notice">A biblioteca exibida é a estrutura inicial. Os vídeos reais serão cadastrados e publicados pela administração.</p></section>
+<section class="section" id="membros"><div class="membership"><div><div class="eyebrow">Acesso ampliado</div><h2>Aprenda com acesso completo.</h2><p>Torne-se membro para acessar os conteúdos exclusivos da plataforma. O acesso será liberado após a confirmação da assinatura.</p></div><a class="btn primary" href="./membros.html">Tornar-me membro</a></div></section>
+</main>
+<footer class="shell footer"><strong>Do Zero a S.A.</strong><span>Uma plataforma de conhecimento em construção.</span><span><a href="./admin.html">Acesso administrativo</a></span></footer>
+</body></html>
