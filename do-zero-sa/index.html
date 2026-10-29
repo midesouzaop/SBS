@@ -21,12 +21,12 @@
     <div class="hero-content">
       <div class="eyebrow">Área pessoal • Produção de conteúdo</div>
       <h1>Meu espaço de criação.</h1>
-      <p>Organize suas gravações, apresentações e projetos em um só lugar. Um ambiente de trabalho para desenvolver e revisar seus próprios materiais.</p>
+      <p>Meu ambiente para organizar minhas palestras, aulas, apresentações e outros conteúdos que estou desenvolvendo.</p>
       <div class="actions"><button class="primary" onclick="document.querySelector('#catalogo').scrollIntoView({behavior:'smooth'})">▶ &nbsp; Ver meus materiais</button><button class="pill" onclick="document.querySelector('#estudio').scrollIntoView({behavior:'smooth'})">Minha produção ↓</button></div>
     </div>
   </section>
   <section class="section" id="catalogo">
-    <div class="section-head"><div><h2>Meus materiais</h2><p>Projetos e conteúdos em organização.</p></div><a class="text-link" href="#catalogo">Ver biblioteca ↗</a></div>
+    <div class="section-head"><div><h2>Meus materiais</h2><p>Meus conteúdos e projetos em andamento.</p></div><a class="text-link" href="#catalogo">Meus materiais ↗</a></div>
     <div class="rail">
       <article class="course" data-title="Estratégia que sai do papel"><div class="thumb" style="background-image:linear-gradient(0deg,#111722aa,#11172211),url('https://i.postimg.cc/3W0s6RW3/1.jpg')"><span>Estratégia</span></div><div class="course-body"><h3>Estratégia que sai do papel</h3><p>Princípios para tirar ideias da gaveta</p><div class="progress"><i style="width:62%"></i></div></div></article>
       <article class="course" data-title="Como o dinheiro funciona"><div class="thumb" style="background-image:linear-gradient(0deg,#11172288,#11172222),url('https://i.postimg.cc/tY0KHjVH/1774401377422.png')"><span>Fundamentos</span></div><div class="course-body"><h3>Como o dinheiro funciona</h3><p>Entenda o sistema, sem complicação</p><div class="progress"><i style="width:28%"></i></div></div></article>
@@ -35,7 +35,7 @@
     </div>
   </section>
   <section class="section">
-    <div class="section-head"><div><h2>Projetos e referências</h2><p>Espaço para organizar temas e materiais de trabalho.</p></div></div>
+    <div class="section-head"><div><h2>Meus temas e projetos</h2><p>Referências e ideias que estou desenvolvendo para meus próprios conteúdos.</p></div></div>
     <div class="rail">
       <article class="course" data-title="Empreendedorismo sem fantasia"><div class="thumb" style="background-image:linear-gradient(130deg,#263550,#11151d 70%,#5c4e83)"><span>Negócios</span></div><div class="course-body"><h3>Empreendedorismo sem fantasia</h3><p>Construção, validação e crescimento</p></div></article>
       <article class="course" data-title="Comunicação que conecta"><div class="thumb" style="background-image:linear-gradient(130deg,#59442d,#17191f 70%,#3b5683)"><span>Comunicação</span></div><div class="course-body"><h3>Comunicação que conecta</h3><p>Clareza para apresentar suas ideias</p></div></article>
@@ -44,15 +44,15 @@
     </div>
   </section>
   <section class="section feature-row" id="estudio">
-    <div class="feature"><div class="feature-icon">✦</div><div class="eyebrow" style="margin-top:16px">Minhas ferramentas</div><h3>Produção dos meus conteúdos</h3><p>Organize minhas gravações e prepare versões dos meus próprios materiais, preservando sempre os arquivos originais.</p><div class="mode-grid"><div class="mode">▣ <b>Aula original</b><small>Organização, capítulos, legendas e cortes sugeridos.</small></div><div class="mode">✧ <b>Vídeo animado</b><small>Roteiro curto, cenas, gráficos e motion design.</small></div></div><div class="actions"><button class="primary" onclick="openUpload()">＋ Adicionar materiais</button></div></div>
+    <div class="feature"><div class="feature-icon">✦</div><div class="eyebrow" style="margin-top:16px">Minhas ferramentas</div><h3>Produção dos meus conteúdos</h3><p>Organize minhas gravações e prepare versões dos meus próprios materiais, preservando sempre os arquivos originais.</p><div class="mode-grid"><div class="mode">▣ <b>Aula original</b><small>Minha gravação completa, com organização, capítulos e legendas.</small></div><div class="mode">✧ <b>Vídeo animado</b><small>Versões curtas com roteiro, cenas, gráficos e animação.</small></div></div><div class="actions"><button class="primary" onclick="openUpload()">＋ Adicionar materiais</button></div></div>
     <div class="feature"><div class="feature-icon">↗</div><div class="eyebrow" style="margin-top:16px">Organização pessoal</div><h3>Formatos dos meus materiais</h3><p>Planeje aulas, vídeos curtos, apresentações e materiais de apoio para os meus próprios projetos, mantendo uma identidade visual consistente.</p><div style="display:flex;gap:9px;flex-wrap:wrap;margin-top:20px"><span class="tag">Vídeos</span><span class="tag">PowerPoint</span><span class="tag">Legendas</span><span class="tag">Capítulos</span><span class="tag">Animações</span></div></div>
   </section>
   <section class="admin" id="upload">
     <div class="admin-top"><div><div class="eyebrow">Área pessoal • ambiente de trabalho</div><h2>Meus arquivos</h2><p>Selecione gravações e apresentações para organizar seus projetos.</p></div><span class="tag">Prévia interativa</span></div>
     <div class="upload-zone" id="dropzone">
-      <div class="upload-icon">⇧</div><h3>Adicionar arquivos ao projeto</h3><p>Vídeos, apresentações e documentos para sua organização pessoal.</p>
+      <div class="upload-icon">⇧</div><h3>Adicionar materiais aos meus projetos</h3><p>Minhas gravações, apresentações e documentos de trabalho.</p>
       <input class="file-input" id="files" type="file" multiple accept="video/*,.ppt,.pptx,.pdf,.doc,.docx,.txt">
-      <button class="primary" onclick="document.getElementById('files').click()">Selecionar arquivos</button>
+      <button class="primary" onclick="document.getElementById('files').click()">Adicionar meus arquivos</button>
       <div class="file-list" id="fileList"></div>
       <div class="notice">Nesta versão, a seleção de arquivos é apenas uma prévia local. O armazenamento remoto, a transcrição e a geração de versões ainda não estão conectados.</div>
     </div>
@@ -60,7 +60,7 @@
   <footer class="footer"><div>Do Zero a S.A. <span>Minha plataforma pessoal de conteúdos.</span></div><span>Ambiente de trabalho • Versão em desenvolvimento</span></footer>
 </main>
 <div class="toast" id="toast"></div>
-<div class="modal-backdrop" id="modal"><div class="modal"><h2>Configurar minha produção</h2><p>Escolha o formato que quero preparar para o meu conteúdo quando o processamento estiver conectado.</p><label for="projectName">Nome do projeto</label><input id="projectName" placeholder="Ex.: Palestra sobre empreendedorismo"><label for="creationMode">Formato de saída</label><select id="creationMode"><option>Aula original com capítulos e legendas</option><option>Mini vídeos animados de aproximadamente 1 minuto</option><option>Gerar aula e mini vídeos animados</option></select><div class="modal-actions"><button class="close" onclick="closeUpload()">Cancelar</button><button class="primary" onclick="startProject()">Preparar projeto</button></div></div></div>
+<div class="modal-backdrop" id="modal"><div class="modal"><h2>Preparar meus conteúdos</h2><p>Defina como quero organizar e adaptar meus próprios materiais quando o processamento estiver conectado.</p><label for="projectName">Nome do projeto</label><input id="projectName" placeholder="Ex.: Palestra sobre empreendedorismo"><label for="creationMode">Formato de saída</label><select id="creationMode"><option>Manter a palestra completa, organizada com capítulos e legendas</option><option>Criar vídeos animados curtos de aproximadamente 1 minuto</option><option>Preparar a palestra completa e os vídeos curtos</option></select><div class="modal-actions"><button class="close" onclick="closeUpload()">Cancelar</button><button class="primary" onclick="startProject()">Preparar projeto</button></div></div></div>
 <script>
 const fileInput=document.getElementById('files'),fileList=document.getElementById('fileList'),toast=document.getElementById('toast');let toastTimer;
 function showToast(msg){toast.textContent=msg;toast.style.display='block';clearTimeout(toastTimer);toastTimer=setTimeout(()=>toast.style.display='none',3300)}
