@@ -27,7 +27,7 @@ app.config.update(
     MAX_CONTENT_LENGTH=MAX_UPLOAD_BYTES + 2 * 1024 * 1024,
     SESSION_COOKIE_HTTPONLY=True,
     SESSION_COOKIE_SECURE=os.environ.get("COOKIE_SECURE", "1") != "0",
-    SESSION_COOKIE_SAMESITE=os.environ.get("COOKIE_SAMESITE", "Lax"),
+    SESSION_COOKIE_SAMESITE=os.environ.get("COOKIE_SAMESITE", "None"),
     PERMANENT_SESSION_LIFETIME=60 * 60 * 8,
 )
 
@@ -56,6 +56,8 @@ def admin_required(fn):
     def wrapped(*args, **kwargs):
         if not session.get("is_admin"):
             return jsonify(error="Autenticação necessária."), 401
+        if request.method in {"POST", "DELETE"} and request.headers.get("X-CSRF-Token") != session.get("csrf_token"):
+            return jsonify(error="Token de segurança inválido. Atualize a sessão e tente novamente."), 403
         return fn(*args, **kwargs)
     return wrapped
 
@@ -104,7 +106,8 @@ def logout():
 
 @app.get("/api/session")
 def get_session():
-    return jsonify(authenticated=bool(session.get("is_admin")), username=session.get("username"))
+    return jsonify(authenticated=bool(session.get("is_admin")), username=session.get("username"),
+                   csrfToken=session.get("csrf_token") if session.get("is_admin") else None)
 
 @app.get("/api/assets")
 @admin_required
