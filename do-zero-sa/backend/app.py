@@ -86,12 +86,12 @@ def health():
 
 @app.post("/api/login")
 def login():
-    username_config = os.environ.get("ADMIN_USERNAME", "")
+    username_config = os.environ.get("ADMIN_USERNAME", "michele-souza@cycor.com.br").strip().lower()
     password_hash = os.environ.get("ADMIN_PASSWORD_HASH", "")
     if not username_config or not password_hash:
         return jsonify(error="Configure ADMIN_USERNAME e ADMIN_PASSWORD_HASH no servidor."), 503
     data = request.get_json(silent=True) or {}
-    if str(data.get("username", "")) != username_config or not check_password_hash(password_hash, str(data.get("password", ""))):
+    if str(data.get("username", "")).strip().lower() != username_config or not check_password_hash(password_hash, str(data.get("password", ""))):
         return jsonify(error="Usuário ou senha inválidos."), 401
     session.clear()
     session.permanent = True
