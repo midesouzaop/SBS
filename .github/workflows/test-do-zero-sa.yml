@@ -4,7 +4,7 @@ on:
     branches:
       - feat/do-zero-sa-platform
     paths:
-      - "do-zero-sa/backend/**"
+      - "do-zero-sa/**"
       - ".github/workflows/test-do-zero-sa.yml"
   pull_request:
     paths:
@@ -30,3 +30,10 @@ jobs:
         run: pip install -r requirements.txt
       - name: Run API tests
         run: python -m unittest test_app.py -v
+      - name: Check frontend JavaScript syntax
+        working-directory: do-zero-sa
+        run: |
+          node --check app.js
+          node --check remote.js
+          node --check config.js
+          node --check sw.js
