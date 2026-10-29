@@ -77,6 +77,20 @@ body{background:#07090d;background-image:radial-gradient(ellipse at 50% -20%,#17
 @media(max-width:850px){.hero{min-height:450px}.art{height:180px}}
 @media(max-width:480px){.hero{min-height:440px}.hero h1{letter-spacing:-1.8px}.art{height:160px}.card-body{padding:15px}.section{margin:42px 0}}
 
+
+/* Fotografia real da fundadora e materiais enviados pela Michele: a imagem lidera, a interface acompanha */
+.hero{background-image:linear-gradient(90deg,#07090df7 0%,#07090de8 30%,#07090d99 58%,#07090d35 100%),linear-gradient(0deg,#07090d66,transparent 55%),url("https://i.postimg.cc/5jQhG0jx/BANNER-MI-02-1320x660.png");background-size:cover;background-position:center 38%}
+.art{position:relative;isolation:isolate;background:#101319;filter:none}
+.art img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;opacity:.78;filter:saturate(.72) contrast(1.04);transition:transform .5s ease,opacity .35s ease}
+.art:before{z-index:0;pointer-events:none}
+.art:after{z-index:0;background:linear-gradient(0deg,#0b0d12 0%,#0b0d12a8 20%,#0b0d1230 60%,#07090d20 100%)}
+.art span{position:relative;z-index:2;text-shadow:0 2px 12px #000}
+.card:hover .art img{transform:scale(1.055);opacity:.95}
+.card:nth-child(2) .art,.card:nth-child(3) .art,.card:nth-child(4) .art{background:#101319}
+.card:nth-child(2) .art:before,.card:nth-child(3) .art:before,.card:nth-child(4) .art:before{display:none}
+.membership{position:relative;overflow:hidden;background:linear-gradient(90deg,#0b0d11f5 0%,#0b0d11e8 50%,#0b0d1180 100%),url("https://i.postimg.cc/BXWrG010/In-Shot-20260322-165054079.jpg") center 38%/cover}
+@media(max-width:600px){.hero{background-position:58% center}.art img{opacity:.86}}
+
 </style>
 </head>
 <body>
@@ -85,10 +99,10 @@ body{background:#07090d;background-image:radial-gradient(ellipse at 50% -20%,#17
 <section class="hero"><div class="hero-copy"><div class="eyebrow">Conhecimento • Ideias • Transformação</div><h1>Conhecimento que sai da ideia e vira ação.</h1><p>Um espaço de conteúdos, aulas e novas perspectivas para quem quer construir, aprender e transformar projetos em realidade.</p><div class="actions"><a class="btn primary" href="#biblioteca">Explorar conteúdos</a><a class="btn" href="./membros.html">Tornar-me membro</a></div></div></section>
 <section class="section" id="biblioteca"><div class="section-head"><div><h2>Explore a biblioteca</h2><p>Os conteúdos públicos ficam disponíveis para todos. Os exclusivos são identificados como conteúdo para membros.</p></div></div>
 <div class="cards">
-<article class="card"><div class="art"><span>Conhecimento aplicado</span></div><div class="card-body"><h3>Conteúdos abertos</h3><p>Vídeos, ideias e materiais selecionados para acesso público.</p><span class="open-label">◉ Acesso público</span></div></article>
-<article class="card"><div class="art"><span>Aulas especiais</span></div><div class="card-body"><h3>Aulas completas</h3><p>Conteúdos aprofundados e organizados por tema.</p><span class="lock">♙ Exclusivo para membros</span></div></article>
-<article class="card"><div class="art"><span>Novas perspectivas</span></div><div class="card-body"><h3>Séries e conteúdos especiais</h3><p>Materiais complementares e séries de aprendizagem.</p><span class="lock">♙ Exclusivo para membros</span></div></article>
-<article class="card"><div class="art"><span>Materiais de apoio</span></div><div class="card-body"><h3>Guias e materiais</h3><p>Conteúdos de apoio para aprofundar os assuntos.</p><span class="lock">♙ Exclusivo para membros</span></div></article>
+<article class="card"><div class="art"><img src="https://i.postimg.cc/3W0s6RW3/1.jpg" alt="" loading="lazy" decoding="async"><span>Conhecimento aplicado</span></div><div class="card-body"><h3>Conteúdos abertos</h3><p>Vídeos, ideias e materiais selecionados para acesso público.</p><span class="open-label">◉ Acesso público</span></div></article>
+<article class="card"><div class="art"><img src="https://i.postimg.cc/tY0KHjVH/1774401377422.png" alt="" loading="lazy" decoding="async"><span>Aulas especiais</span></div><div class="card-body"><h3>Aulas completas</h3><p>Conteúdos aprofundados e organizados por tema.</p><span class="lock">♙ Exclusivo para membros</span></div></article>
+<article class="card"><div class="art"><img src="https://i.postimg.cc/0rKT3Qr5/file-00000000daa0720eae116147ca173b29.png" alt="" loading="lazy" decoding="async"><span>Novas perspectivas</span></div><div class="card-body"><h3>Séries e conteúdos especiais</h3><p>Materiais complementares e séries de aprendizagem.</p><span class="lock">♙ Exclusivo para membros</span></div></article>
+<article class="card"><div class="art"><img src="https://i.postimg.cc/grLC5Jrd/IMG-20260324-225316-833.webp" alt="" loading="lazy" decoding="async"><span>Materiais de apoio</span></div><div class="card-body"><h3>Guias e materiais</h3><p>Conteúdos de apoio para aprofundar os assuntos.</p><span class="lock">♙ Exclusivo para membros</span></div></article>
 </div><p class="notice">A biblioteca exibida é a estrutura inicial. Os vídeos reais serão cadastrados e publicados pela administração.</p></section>
 <section class="section" id="membros"><div class="membership"><div><div class="eyebrow">Acesso ampliado</div><h2>Aprenda com acesso completo.</h2><p>Torne-se membro para acessar os conteúdos exclusivos da plataforma. O acesso será liberado após a confirmação da assinatura.</p></div><a class="btn primary" href="./membros.html">Tornar-me membro</a></div></section>
 </main>
