@@ -109,7 +109,15 @@
       status(err.message,true);
     } finally { button.disabled=!csrfToken; }
   }
-  function init() { mount(); }
+  function init() {
+    mount();
+    if (!$("remoteLibrary") && "MutationObserver" in window) {
+      const observer = new MutationObserver(() => {
+        if ($("localLibrary")) { observer.disconnect(); mount(); }
+      });
+      observer.observe(document.body, {childList:true, subtree:true});
+    }
+  }
   if (document.readyState==="loading") document.addEventListener("DOMContentLoaded",init,{once:true});
   else init();
 })();
