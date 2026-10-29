@@ -1,0 +1,11 @@
+{
+  "name": "Do Zero a S.A.",
+  "short_name": "Do Zero a S.A.",
+  "description": "Conhecimento em movimento. Sua biblioteca de aulas e projetos.",
+  "lang": "pt-BR",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#0d1117",
+  "theme_color": "#10141b"
+}
