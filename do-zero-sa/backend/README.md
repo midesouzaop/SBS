@@ -13,7 +13,7 @@ O upload usa o campo multipart `files`. Tipos permitidos: vídeos comuns, PowerP
 
 ## Variáveis de ambiente
 - `SECRET_KEY`: segredo aleatório longo para assinar sessões.
-- `ADMIN_USERNAME`: usuário administrativo.
+- `ADMIN_USERNAME`: e-mail da conta administrativa autorizada. Se não definido, o padrão é `michele-souza@cycor.com.br`; em produção, mantenha esse endereço como o único usuário permitido.
 - `ADMIN_PASSWORD_HASH`: hash Werkzeug da senha, nunca a senha em texto puro.
 - `DATA_DIR`: diretório persistente para banco e arquivos.
 - `FRONTEND_ORIGIN`: origem exata autorizada para chamadas do navegador.
@@ -31,7 +31,7 @@ python -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
 export SECRET_KEY="$(python -c 'import secrets; print(secrets.token_urlsafe(48))')"
-export ADMIN_USERNAME="admin"
+export ADMIN_USERNAME="michele-souza@cycor.com.br"
 export ADMIN_PASSWORD_HASH="$(python -c 'from werkzeug.security import generate_password_hash; print(generate_password_hash(input()))')"
 export COOKIE_SECURE=0
 python app.py
