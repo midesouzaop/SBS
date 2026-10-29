@@ -1,4 +1,4 @@
-# Publish the current Do Zero a S.A. frontend and owner-login configuration.
+# Publish updated Do Zero a S.A. public page without outdated banner copy.
 name: Deploy Do Zero a S.A. to Pages
 
 on:
