@@ -14,7 +14,7 @@
 <body>
 <header class="shell topbar">
   <div class="brand">Do Zero <span>a S.A.</span></div>
-  <nav class="nav"><a href="#catalogo">Minha biblioteca</a><a href="#estudio">Ferramentas</a><button class="pill" id="profileBtn">Minha conta</button></nav>
+  <nav class="nav"><a href="#catalogo">Minha biblioteca</a><a href="#estudio">Minha produção</a><button class="pill" id="profileBtn">Minha conta</button></nav>
 </header>
 <main class="shell">
   <section class="hero">
@@ -22,7 +22,7 @@
       <div class="eyebrow">Área pessoal • Produção de conteúdo</div>
       <h1>Meu espaço de criação.</h1>
       <p>Organize suas gravações, apresentações e projetos em um só lugar. Um ambiente de trabalho para desenvolver e revisar seus próprios materiais.</p>
-      <div class="actions"><button class="primary" onclick="document.querySelector('#catalogo').scrollIntoView({behavior:'smooth'})">▶ &nbsp; Ver meus materiais</button><button class="pill" onclick="document.querySelector('#estudio').scrollIntoView({behavior:'smooth'})">Abrir ferramentas ↓</button></div>
+      <div class="actions"><button class="primary" onclick="document.querySelector('#catalogo').scrollIntoView({behavior:'smooth'})">▶ &nbsp; Ver meus materiais</button><button class="pill" onclick="document.querySelector('#estudio').scrollIntoView({behavior:'smooth'})">Minha produção ↓</button></div>
     </div>
   </section>
   <section class="section" id="catalogo">
@@ -44,8 +44,8 @@
     </div>
   </section>
   <section class="section feature-row" id="estudio">
-    <div class="feature"><div class="feature-icon">✦</div><div class="eyebrow" style="margin-top:16px">Área de produção</div><h3>Estúdio de criação</h3><p>Organize uma gravação original e planeje versões derivadas para revisar. O material original deve permanecer preservado durante o processo.</p><div class="mode-grid"><div class="mode">▣ <b>Aula original</b><small>Organização, capítulos, legendas e cortes sugeridos.</small></div><div class="mode">✧ <b>Vídeo animado</b><small>Roteiro curto, cenas, gráficos e motion design.</small></div></div><div class="actions"><button class="primary" onclick="openUpload()">＋ Adicionar materiais</button></div></div>
-    <div class="feature"><div class="feature-icon">↗</div><div class="eyebrow" style="margin-top:16px">Formatos de trabalho</div><h3>Planejamento de conteúdo</h3><p>Defina os formatos desejados para cada projeto, como aulas, microvídeos e materiais de apoio, mantendo uma identidade visual consistente.</p><div style="display:flex;gap:9px;flex-wrap:wrap;margin-top:20px"><span class="tag">Vídeos</span><span class="tag">PowerPoint</span><span class="tag">Legendas</span><span class="tag">Capítulos</span><span class="tag">Animações</span></div></div>
+    <div class="feature"><div class="feature-icon">✦</div><div class="eyebrow" style="margin-top:16px">Minhas ferramentas</div><h3>Produção dos meus conteúdos</h3><p>Organize minhas gravações e prepare versões dos meus próprios materiais, preservando sempre os arquivos originais.</p><div class="mode-grid"><div class="mode">▣ <b>Aula original</b><small>Organização, capítulos, legendas e cortes sugeridos.</small></div><div class="mode">✧ <b>Vídeo animado</b><small>Roteiro curto, cenas, gráficos e motion design.</small></div></div><div class="actions"><button class="primary" onclick="openUpload()">＋ Adicionar materiais</button></div></div>
+    <div class="feature"><div class="feature-icon">↗</div><div class="eyebrow" style="margin-top:16px">Organização pessoal</div><h3>Formatos dos meus materiais</h3><p>Planeje aulas, vídeos curtos, apresentações e materiais de apoio para os meus próprios projetos, mantendo uma identidade visual consistente.</p><div style="display:flex;gap:9px;flex-wrap:wrap;margin-top:20px"><span class="tag">Vídeos</span><span class="tag">PowerPoint</span><span class="tag">Legendas</span><span class="tag">Capítulos</span><span class="tag">Animações</span></div></div>
   </section>
   <section class="admin" id="upload">
     <div class="admin-top"><div><div class="eyebrow">Área pessoal • ambiente de trabalho</div><h2>Meus arquivos</h2><p>Selecione gravações e apresentações para organizar seus projetos.</p></div><span class="tag">Prévia interativa</span></div>
@@ -57,10 +57,10 @@
       <div class="notice">Nesta versão, a seleção de arquivos é apenas uma prévia local. O armazenamento remoto, a transcrição e a geração de versões ainda não estão conectados.</div>
     </div>
   </section>
-  <footer class="footer"><div>Do Zero a S.A. <span>Ambiente pessoal de produção.</span></div><span>Área de trabalho • Versão em desenvolvimento</span></footer>
+  <footer class="footer"><div>Do Zero a S.A. <span>Minha plataforma pessoal de conteúdos.</span></div><span>Ambiente de trabalho • Versão em desenvolvimento</span></footer>
 </main>
 <div class="toast" id="toast"></div>
-<div class="modal-backdrop" id="modal"><div class="modal"><h2>Preparar uma nova produção</h2><p>Escolha o formato que o estúdio deverá preparar quando o processamento estiver conectado.</p><label for="projectName">Nome do projeto</label><input id="projectName" placeholder="Ex.: Palestra sobre empreendedorismo"><label for="creationMode">Formato de saída</label><select id="creationMode"><option>Aula original com capítulos e legendas</option><option>Mini vídeos animados de aproximadamente 1 minuto</option><option>Gerar aula e mini vídeos animados</option></select><div class="modal-actions"><button class="close" onclick="closeUpload()">Cancelar</button><button class="primary" onclick="startProject()">Preparar projeto</button></div></div></div>
+<div class="modal-backdrop" id="modal"><div class="modal"><h2>Configurar minha produção</h2><p>Escolha o formato que quero preparar para o meu conteúdo quando o processamento estiver conectado.</p><label for="projectName">Nome do projeto</label><input id="projectName" placeholder="Ex.: Palestra sobre empreendedorismo"><label for="creationMode">Formato de saída</label><select id="creationMode"><option>Aula original com capítulos e legendas</option><option>Mini vídeos animados de aproximadamente 1 minuto</option><option>Gerar aula e mini vídeos animados</option></select><div class="modal-actions"><button class="close" onclick="closeUpload()">Cancelar</button><button class="primary" onclick="startProject()">Preparar projeto</button></div></div></div>
 <script>
 const fileInput=document.getElementById('files'),fileList=document.getElementById('fileList'),toast=document.getElementById('toast');let toastTimer;
 function showToast(msg){toast.textContent=msg;toast.style.display='block';clearTimeout(toastTimer);toastTimer=setTimeout(()=>toast.style.display='none',3300)}
