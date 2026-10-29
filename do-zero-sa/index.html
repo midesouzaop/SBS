@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#10141b">
+<meta name="theme-color" content="#10141b">\n<link rel="manifest" href="./manifest.webmanifest">\n<meta name="apple-mobile-web-app-capable" content="yes">\n<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>Do Zero a S.A. — Conhecimento em movimento</title>
 <style>
 :root{color-scheme:dark;--bg:#0d1117;--panel:#151b25;--panel2:#1a2230;--text:#f3f5f8;--muted:#a2adbd;--blue:#6687ff;--violet:#a18aff;--amber:#e6b77b;--line:#293242}
@@ -54,7 +54,7 @@
       <input class="file-input" id="files" type="file" multiple accept="video/*,.ppt,.pptx,.pdf,.doc,.docx,.txt">
       <button class="primary" onclick="document.getElementById('files').click()">Selecionar arquivos</button>
       <div class="file-list" id="fileList"></div>
-      <div class="notice">Esta versão é um protótipo visual: a seleção de arquivos funciona no navegador, mas o envio persistente, a transcrição e a renderização ainda precisam de um backend conectado.</div>
+      <div class="notice">Nesta etapa, os arquivos e projetos podem ser guardados neste dispositivo. O envio para a nuvem, a transcrição e a renderização serão conectados ao backend nas próximas etapas.</div>
     </div>
   </section>
   <footer class="footer"><div>Do Zero a S.A. <span>Conhecimento em movimento.</span></div><span>Conceito inicial • Plataforma responsiva</span></footer>
@@ -73,5 +73,5 @@ document.getElementById('profileBtn').addEventListener('click',()=>showToast('A 
 document.getElementById('modal').addEventListener('click',e=>{if(e.target.id==='modal')closeUpload()});
 const dropzone=document.getElementById('dropzone');dropzone.addEventListener('dragover',e=>{e.preventDefault();dropzone.style.borderColor='#a9b9ff'});dropzone.addEventListener('dragleave',()=>dropzone.style.borderColor='#6577aa80');dropzone.addEventListener('drop',e=>{e.preventDefault();dropzone.style.borderColor='#6577aa80';if(e.dataTransfer.files.length){showToast('Arquivos reconhecidos visualmente. Use “Selecionar arquivos” para ver a fila nesta prévia.')}})
 </script>
-</body>
+<script src="./app.js"></script>\n<script>if ("serviceWorker" in navigator && (location.protocol === "https:" || location.hostname === "localhost")) navigator.serviceWorker.register("./sw.js").catch(console.error);</script>\n</body>
 </html>
