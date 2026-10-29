@@ -7,6 +7,10 @@ on:
     paths:
       - "do-zero-sa/**"
       - ".github/workflows/deploy-do-zero-sa.yml"
+  pull_request:
+    paths:
+      - "do-zero-sa/**"
+      - ".github/workflows/deploy-do-zero-sa.yml"
   workflow_dispatch:
 
 permissions:
@@ -22,16 +26,19 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
-      - name: Verify site entry point
-        run: test -s do-zero-sa/index.html
-
+      - name: Verify public and access pages
+        run: |
+          test -s do-zero-sa/index.html
+          test -s do-zero-sa/login.html
+          test -s do-zero-sa/membros.html
+          test -s do-zero-sa/admin.html
       - name: Verify application scripts
         run: |
-          test -s do-zero-sa/app.js
-          test -s do-zero-sa/remote.js
-
-      - name: Verify local asset references
+          test -s do-zero-sa/admin.js
+          test -s do-zero-sa/config.js
+      - name: Verify navigation targets
         run: |
-          grep -q 'app.js' do-zero-sa/index.html
-          grep -q 'remote.js' do-zero-sa/index.html
+          grep -q 'login.html' do-zero-sa/index.html
+          grep -q 'membros.html' do-zero-sa/index.html
+          grep -q 'admin.html' do-zero-sa/index.html
+          grep -q 'admin.js' do-zero-sa/admin.html
