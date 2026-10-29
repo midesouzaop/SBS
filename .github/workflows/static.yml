@@ -1,4 +1,4 @@
-# Deploy the public Do Zero a S.A. frontend from its platform branch.
+# Deploy the latest public Do Zero a S.A. frontend and access pages from its platform branch.
 name: Deploy Do Zero a S.A. to Pages
 
 on:
