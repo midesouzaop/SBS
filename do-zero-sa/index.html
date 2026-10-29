@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#10141b">
+<meta name="theme-color" content="#07090d">
 <meta name="description" content="Do Zero a S.A. — conteúdos, aulas e ideias para transformar conhecimento em ação.">
 <link rel="manifest" href="./manifest.webmanifest">
 <title>Do Zero a S.A. — Conhecimento em movimento</title>
@@ -31,6 +31,51 @@
 .card-body{padding:17px}
 @media(max-width:850px){.cards{display:flex}.card{flex-basis:clamp(230px,72vw,300px)}.art{height:165px}}
 @media(max-width:480px){.cards{gap:12px}.card{flex-basis:78vw}.art{height:155px}}
+
+
+/* Acabamento premium: paleta noturna, contraste editorial e acento metálico discreto */
+:root{--bg:#07090d;--panel:#101319;--text:#f2f0eb;--muted:#989ba5;--blue:#c3b58a;--violet:#c3b58a;--line:#282722}
+body{background:#07090d;background-image:radial-gradient(ellipse at 50% -20%,#171b25 0%,transparent 52%);font-family:Inter,"Helvetica Neue",Arial,sans-serif}
+.shell{max-width:1380px}
+.topbar{border-bottom-color:#ffffff0d}
+.brand span{color:#c5b88f}
+.nav{color:#a2a3a8}.nav a:hover{color:#e4d6ad}
+.btn{border-radius:5px;border-color:#393a3a;background:#ffffff04;letter-spacing:.15px}
+.btn.primary{color:#0b0c0d;background:#c5b88f}
+.btn.primary:hover{background:#e0d3ac}
+.hero{min-height:500px;margin:22px 0 54px;border-radius:4px;border-color:#ffffff12;background:linear-gradient(90deg,#080a0e 0%,#0a0c11eF 35%,#0b0e15a8 65%,#090b10 100%),radial-gradient(ellipse at 72% 35%,#343b4c 0%,#161b25 28%,#080a0e 70%);box-shadow:none}
+.hero:after{background:linear-gradient(90deg,#07090d 0%,#07090de8 30%,#07090d55 70%,#07090d88 100%)}
+.hero-copy{max-width:760px;padding:clamp(30px,6vw,76px)}
+.eyebrow{color:#c5b88f;letter-spacing:2.5px;font-size:10px}
+.hero h1{max-width:720px;font-size:clamp(42px,6.1vw,76px);font-weight:650;letter-spacing:-2.8px;line-height:.99}
+.hero p{color:#b2b3b8;font-size:16px;max-width:510px}
+.section{margin:54px 0}
+.section h2{font-size:22px;font-weight:620;letter-spacing:-.35px}
+.section-head{margin-bottom:22px}
+.section-head p{color:#858891}
+.cards{gap:14px;scrollbar-color:#48463d transparent}
+.card{background:#0d1015;border:1px solid #ffffff12;border-radius:3px;box-shadow:none}
+.card:hover{transform:translateY(-3px);border-color:#b9aa7b77;box-shadow:0 16px 35px #0008}
+.art{height:205px;background:linear-gradient(145deg,#222936,#11141b 68%,#090b0f);filter:saturate(.55)}
+.art:before{width:170px;height:170px;right:8px;top:-45px;border-color:#c5b88f35;box-shadow:0 0 45px #c5b88f0b,inset 0 0 35px #c5b88f08}
+.art:after{background:linear-gradient(0deg,#0d1015 0%,#0d101588 22%,transparent 75%)}
+.art span{color:#d5cba9;font-size:10px;letter-spacing:1.6px}
+.card:nth-child(2) .art{background:linear-gradient(145deg,#28252c,#111217 70%,#090a0d)}
+.card:nth-child(2) .art:before{border-color:#c5b88f30;box-shadow:0 0 0 1px #c5b88f22}
+.card:nth-child(3) .art{background:linear-gradient(145deg,#1d2929,#111519 70%,#090b0e)}
+.card:nth-child(3) .art:before{border-color:#b7c2ad35}
+.card:nth-child(4) .art{background:linear-gradient(145deg,#2d2820,#131416 70%,#090b0e)}
+.card:nth-child(4) .art:before{border-color:#c5b88f35}
+.card-body{padding:18px 17px 20px}
+.card h3{font-weight:620;letter-spacing:-.2px}
+.card p{color:#92959d}
+.lock{color:#c5b88f}.open-label{color:#b7c4b0}
+.membership{border:1px solid #39372f;border-radius:4px;background:linear-gradient(105deg,#111318,#0c0e12 75%);padding:clamp(24px,4vw,42px)}
+.membership h2{font-weight:620}.membership p{color:#a1a3aa}
+.notice{color:#737780}
+.footer{border-top-color:#ffffff10;color:#737780}
+@media(max-width:850px){.hero{min-height:450px}.art{height:180px}}
+@media(max-width:480px){.hero{min-height:440px}.hero h1{letter-spacing:-1.8px}.art{height:160px}.card-body{padding:15px}.section{margin:42px 0}}
 
 </style>
 </head>
