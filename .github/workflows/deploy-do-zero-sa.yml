@@ -1,4 +1,5 @@
-name: Deploy Do Zero a S.A. preview
+name: Validate Do Zero a S.A. site
+
 on:
   push:
     branches:
@@ -7,28 +8,30 @@ on:
       - "do-zero-sa/**"
       - ".github/workflows/deploy-do-zero-sa.yml"
   workflow_dispatch:
+
 permissions:
   contents: read
-  pages: write
-  id-token: write
+
 concurrency:
-  group: pages
-  cancel-in-progress: false
+  group: validate-do-zero-sa
+  cancel-in-progress: true
+
 jobs:
-  build:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+  validate:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Setup Pages
-        uses: actions/configure-pages@v5
-      - name: Upload website artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: do-zero-sa
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v5
+
+      - name: Verify site entry point
+        run: test -s do-zero-sa/index.html
+
+      - name: Verify application scripts
+        run: |
+          test -s do-zero-sa/app.js
+          test -s do-zero-sa/remote.js
+
+      - name: Verify local asset references
+        run: |
+          grep -q 'app.js' do-zero-sa/index.html
+          grep -q 'remote.js' do-zero-sa/index.html
