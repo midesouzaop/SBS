@@ -7,7 +7,7 @@
   const sizeText = n => n < 1048576 ? Math.round(n/1024)+" KB" : (n/1048576).toFixed(1)+" MB";
   async function api(path, options={}) {
     const base = apiBase();
-    if (!base) throw new Error("A API ainda não foi hospedada/configurada.");
+    if (!base) throw new Error("A conexão com o servidor ainda não foi configurada.");
     const headers = new Headers(options.headers || {});
     if (csrfToken && options.method && options.method !== "GET") headers.set("X-CSRF-Token", csrfToken);
     const response = await fetch(base + path, {...options, headers, credentials:"include"});
@@ -25,12 +25,12 @@
     const panel=document.createElement("section");
     panel.id="remoteLibrary";
     panel.style.cssText="margin-top:20px;padding:18px;border:1px solid #3b465b;border-radius:14px;background:#0d121b";
-    panel.innerHTML='<div class="eyebrow">Próxima camada • servidor</div><h3 style="margin:8px 0">Biblioteca da plataforma</h3><p style="font-size:12px;color:#a2adbd;margin:0 0 14px">Quando a API estiver hospedada, conecte a conta administrativa para enviar os materiais ao servidor e acessá-los em outros dispositivos.</p><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:9px"><label style="font-size:12px;color:#a2adbd">Usuário administrativo<input id="remoteUser" autocomplete="username" style="display:block;width:100%;margin-top:5px;background:#101722;border:1px solid #39445a;border-radius:9px;padding:10px;color:white" placeholder="Usuário"></label><label style="font-size:12px;color:#a2adbd">Senha<input id="remotePass" type="password" autocomplete="current-password" style="display:block;width:100%;margin-top:5px;background:#101722;border:1px solid #39445a;border-radius:9px;padding:10px;color:white" placeholder="Senha"></label></div><div class="actions"><button type="button" class="primary" id="remoteLogin">Conectar servidor</button><button type="button" class="pill" id="remoteUpload" disabled>Enviar materiais salvos</button><button type="button" class="pill" id="remoteRefresh" disabled>Atualizar biblioteca</button></div><p id="remoteStatus" role="status" style="font-size:12px;margin:12px 0 0;color:#a2adbd"></p><div id="remoteFiles" class="file-list"></div>';
+    panel.innerHTML='<div class="eyebrow">Próxima camada • servidor</div><h3 style="margin:8px 0">Minha biblioteca sincronizada</h3><p style="font-size:12px;color:#a2adbd;margin:0 0 14px">Quando eu hospedar a API, poderei conectar minha conta para sincronizar meus materiais e acessá-los em outros dispositivos.</p><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:9px"><label style="font-size:12px;color:#a2adbd">Minha conta de acesso<input id="remoteUser" autocomplete="username" style="display:block;width:100%;margin-top:5px;background:#101722;border:1px solid #39445a;border-radius:9px;padding:10px;color:white" placeholder="Usuário"></label><label style="font-size:12px;color:#a2adbd">Senha<input id="remotePass" type="password" autocomplete="current-password" style="display:block;width:100%;margin-top:5px;background:#101722;border:1px solid #39445a;border-radius:9px;padding:10px;color:white" placeholder="Senha"></label></div><div class="actions"><button type="button" class="primary" id="remoteLogin">Conectar servidor</button><button type="button" class="pill" id="remoteUpload" disabled>Enviar materiais salvos</button><button type="button" class="pill" id="remoteRefresh" disabled>Atualizar biblioteca</button></div><p id="remoteStatus" role="status" style="font-size:12px;margin:12px 0 0;color:#a2adbd"></p><div id="remoteFiles" class="file-list"></div>';
     parent.appendChild(panel);
     $("remoteLogin").addEventListener("click", login);
     $("remoteUpload").addEventListener("click", uploadLocalFiles);
     $("remoteRefresh").addEventListener("click", refreshRemote);
-    if (!apiBase()) status("A API está preparada no repositório, mas ainda precisa ser hospedada. Nenhum arquivo será enviado até isso estar configurado.");
+    if (!apiBase()) status("A conexão com o servidor ainda está em preparação. Meus arquivos não serão enviados até que eu configure essa conexão.");
     else {
       status("Endereço da API configurado. Verificando sessão…");
       api("/api/session").then(data=>{
