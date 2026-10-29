@@ -1,4 +1,4 @@
-# Publish updated Do Zero a S.A. public page without outdated banner copy.
+# Publish updated Do Zero a S.A. public page and clear stale cached public content.
 name: Deploy Do Zero a S.A. to Pages
 
 on:
