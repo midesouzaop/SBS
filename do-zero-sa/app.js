@@ -56,7 +56,7 @@
     const panel = document.createElement("div");
     panel.id = "localLibrary";
     panel.style.cssText = "margin-top:20px;text-align:left";
-    panel.innerHTML = '<div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap"><strong style="font-size:14px">Minha biblioteca neste dispositivo</strong><button type="button" class="close" id="clearLocal">Apagar biblioteca local</button></div><p style="font-size:12px;color:#a2adbd;margin:5px 0 12px">Meus arquivos ficam armazenados neste navegador e não são enviados à nuvem. Não limpe os dados do navegador enquanto precisar deles.</p><div id="savedFiles" class="file-list"></div><div style="height:1px;background:#293242;margin:22px 0"></div><strong style="font-size:14px">Projetos preparados</strong><div id="savedProjects" class="file-list"></div>';
+    panel.innerHTML = '<div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap"><strong style="font-size:14px">Minha biblioteca neste dispositivo</strong><button type="button" class="close" id="clearLocal">Apagar biblioteca local</button></div><p style="font-size:12px;color:#a2adbd;margin:5px 0 12px">Meus arquivos ficam armazenados neste navegador e não são enviados à nuvem. Não limpe os dados do navegador enquanto precisar deles.</p><div id="savedFiles" class="file-list"></div><div style="height:1px;background:#293242;margin:22px 0"></div><strong style="font-size:14px">Meus projetos preparados</strong><div id="savedProjects" class="file-list"></div>';
     zone.appendChild(panel);
     $("clearLocal").addEventListener("click", async () => {
       if (!confirm("Apagar meus arquivos e projetos salvos neste dispositivo? Esta ação não pode ser desfeita.")) return;
@@ -103,7 +103,7 @@
       await put("assets", {id,name:file.name,size:file.size,type:file.type,addedAt:Date.now(),blob:file});
     }
     await render();
-    if (files.length && typeof showToast === "function") showToast(files.length+" arquivo(s) salvo(s) neste dispositivo.");
+    if (files.length && typeof showToast === "function") showToast(files.length+" arquivo(s) meus salvo(s) neste dispositivo.");
   }
   async function init() {
     try {
